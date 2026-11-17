@@ -22,7 +22,7 @@ namespace Gili
         public MeetingDialog(Meeting existing)
         {
             meeting = existing ?? new Meeting { Start = NextHalfHour() };
-            Text = existing == null ? "Tambah rapat · Gili" : "Edit rapat · Gili";
+            Text = existing == null ? "Add meeting · Gili" : "Edit meeting · Gili";
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = MinimizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -37,10 +37,10 @@ namespace Gili
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
 
             int y = 18;
-            AddLabel("Judul rapat", y); y += 25;
+            AddLabel("Meeting title", y); y += 25;
             Style(title, y); title.Text = meeting.Title; y += 40;
 
-            AddLabel("Tanggal", y); AddLabel("Jam mulai", y, 220); y += 25;
+            AddLabel("Date", y); AddLabel("Start time", y, 220); y += 25;
             date.Format = DateTimePickerFormat.Custom; date.CustomFormat = "ddd, dd MMM yyyy";
             date.Bounds = new Rectangle(18, y, 190, 28); date.Value = meeting.Start.Date;
             time.Format = DateTimePickerFormat.Custom; time.CustomFormat = "HH:mm"; time.ShowUpDown = true;
@@ -49,7 +49,7 @@ namespace Gili
 
             AddLabel("Durasi", y); AddLabel("Ingatkan", y, 220); y += 25;
             Combo(duration, new Rectangle(18, y, 190, 28));
-            foreach (var d in Durations) duration.Items.Add(d < 60 ? d + " menit" : d % 60 == 0 ? d / 60 + " jam" : (d / 60) + " jam " + (d % 60) + " menit");
+            foreach (var d in Durations) duration.Items.Add(d < 60 ? d + " min" : d % 60 == 0 ? d / 60 + " hr" : (d / 60) + " jam " + (d % 60) + " min");
             duration.SelectedIndex = Math.Max(0, Array.IndexOf(Durations, meeting.DurationMin));
             if (Array.IndexOf(Durations, meeting.DurationMin) < 0) duration.SelectedIndex = 1;
             Combo(remind, new Rectangle(220, y, 182, 28));
@@ -69,13 +69,13 @@ namespace Gili
             if (existing == null) link.Text = LinkFromClipboard();
             y += 48;
 
-            var save = Button("Simpan", new Rectangle(ClientSize.Width - 18 - 110, y, 110, 34), true);
+            var save = Button("Save", new Rectangle(ClientSize.Width - 18 - 110, y, 110, 34), true);
             save.Click += delegate { Save(); };
-            var cancel = Button("Batal", new Rectangle(ClientSize.Width - 18 - 110 - 10 - 90, y, 90, 34), false);
+            var cancel = Button("Cancel", new Rectangle(ClientSize.Width - 18 - 110 - 10 - 90, y, 90, 34), false);
             cancel.Click += delegate { DialogResult = DialogResult.Cancel; Close(); };
             if (existing != null)
             {
-                var del = Button("Hapus", new Rectangle(18, y, 90, 34), false);
+                var del = Button("Delete", new Rectangle(18, y, 90, 34), false);
                 del.ForeColor = Color.FromArgb(255, 110, 100);
                 del.Click += delegate
                 {
