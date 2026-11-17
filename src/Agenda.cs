@@ -171,13 +171,13 @@ namespace Gili
         static string DayLabel(DateTime d)
         {
             if (d.Date == DateTime.Today) return "Today";
-            if (d.Date == DateTime.Today.AddDays(1)) return "Besok";
+            if (d.Date == DateTime.Today.AddDays(1)) return "Tomorrow";
             return DayNames[(int)d.DayOfWeek] + ", " + d.Day + " " + MonthNames[d.Month - 1];
         }
 
         static string Until(TimeSpan left)
         {
-            if (left.TotalSeconds <= 0) return "sedang berlangsung";
+            if (left.TotalSeconds <= 0) return "in progress";
             int minutes = (int)Math.Ceiling(left.TotalMinutes);
             if (minutes < 60) return "in " + minutes + " min";
             if (minutes < 24 * 60) return "in " + (minutes / 60) + " hr " + (minutes % 60) + " min";
@@ -227,7 +227,7 @@ namespace Gili
             {
                 float joinW = bw * 0.62f;
                 PillButton(new RectangleF(18, 70, joinW, 32), "meetJoin", "Gabung", MeetColor, Color.White, delegate { JoinMeeting(e); });
-                PillButton(new RectangleF(18 + joinW + 10, 70, bw - joinW - 10, 32), "meetClose", "Tutup", Theme.Fill, Theme.Text, DismissToast);
+                PillButton(new RectangleF(18 + joinW + 10, 70, bw - joinW - 10, 32), "meetClose", "Close", Theme.Fill, Theme.Text, DismissToast);
             }
             else PillButton(new RectangleF(18, 70, bw, 32), "meetClose", "Oke", Theme.Fill, Theme.Text, DismissToast);
         }
@@ -297,7 +297,7 @@ namespace Gili
             // footer: optional Google Calendar link
             bool linked = settings.Get("calendar.ics", "").Length > 0;
             var foot = new RectangleF(16, h - 30, w - 32, 22);
-            string footText = linked ? "Google Calendar tersambung · ganti link" : "Hubungkan Google Calendar (salin link iCal rahasia, lalu klik)";
+            string footText = linked ? "Google Calendar connected · change link" : "Connect Google Calendar (copy your private iCal link, then click)";
             if (Hover("icalLink")) paint.FillRound(foot, 11, Theme.Fill);
             paint.TextCenter(footText, Theme.Ui(10.5f), Theme.Faint, w / 2, foot.Y + 11);
             AddHit(foot, "icalLink", LinkIcalFromClipboard);
