@@ -159,25 +159,25 @@ namespace Gili
             {
                 var clear = new RectangleF(w - 18 - 84, 43, 84, 22);
                 if (Hover("shelfClear")) paint.FillRound(clear, 11, Theme.Fill);
-                paint.TextCenter("Kosongkan", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
+                paint.TextCenter("Clear shelf", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
                 AddHit(clear, "shelfClear", delegate { shelf.Clear(); SaveShelf(); Kick(); });
             }
 
             var zone = new RectangleF(18, 68, w - 36, h - 80);
             if (shelf.Count == 0 || dragOver)
             {
-                Color edge = dragOver ? Theme.Prayer : Theme.Faint;
-                paint.FillRound(zone, 16, dragOver ? Theme.WithAlpha(Theme.Prayer, 0.12f) : Theme.WithAlpha(Theme.Fill, 0.5f));
+                Color edge = dragOver ? Theme.Green : Theme.Faint;
+                paint.FillRound(zone, 16, dragOver ? Theme.WithAlpha(Theme.Green, 0.12f) : Theme.WithAlpha(Theme.Fill, 0.5f));
                 using (var path = Theme.Round(zone, 16))
                 using (var pen = new Pen(Theme.WithAlpha(edge, paint.Alpha), 1.4f) { DashStyle = DashStyle.Dash })
                     g.DrawPath(pen, path);
                 if (shelf.Count == 0 || dragOver)
                 {
                     paint.Icon(Theme.IconFolder, 22, edge, w / 2, zone.Y + zone.Height / 2 - 18);
-                    paint.TextCenter(dragOver ? "Lepas untuk menyimpan di shelf" : "Seret file ke sini",
-                                     Theme.Semi(13.5f), dragOver ? Theme.Prayer : Theme.Sub, w / 2, zone.Y + zone.Height / 2 + 10);
+                    paint.TextCenter(dragOver ? "Drop to add to the shelf" : "Drop files here",
+                                     Theme.Semi(13.5f), dragOver ? Theme.Green : Theme.Sub, w / 2, zone.Y + zone.Height / 2 + 10);
                     if (!dragOver)
-                        paint.TextCenter("Simpan sementara, lalu seret keluar ke chat, email, atau folder", Theme.Ui(11f), Theme.Faint,
+                        paint.TextCenter("Keep files here temporarily, then drag them into a chat, email or folder", Theme.Ui(11f), Theme.Faint,
                                          w / 2, zone.Y + zone.Height / 2 + 30);
                 }
                 if (dragOver || shelf.Count == 0) return;

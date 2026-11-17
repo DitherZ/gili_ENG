@@ -163,7 +163,7 @@ namespace Gili
                 string lrc = File.Exists(cacheFile) ? File.ReadAllText(cacheFile, Encoding.UTF8) : null;
                 if (lrc == null)
                 {
-                    try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)(3072 | 12288); } catch { } // TLS 1.2 + 1.3 (BMKG accepts only 1.3)
+                    try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)(3072 | 12288); } catch { } // TLS 1.2 and TLS 1.3
                     int dur = (int)Math.Round(durationMs / 1000);
                     if (artist.Length > 0)
                     {
@@ -271,7 +271,7 @@ namespace Gili
         }
 
         static readonly Regex Noise = new Regex(
-            @"official|video|audio|lyric|lirik|\bmv\b|m/v|\bhd\b|\b4k\b|visuali[sz]er|music video|video clip|remaster|explicit|full album|live session",
+            @"official|video|audio|lyric|\bmv\b|m/v|\bhd\b|\b4k\b|visuali[sz]er|music video|video clip|remaster|explicit|full album|live session",
             RegexOptions.IgnoreCase);
 
         /// <summary>

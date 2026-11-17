@@ -14,7 +14,7 @@ using WinTimer = System.Windows.Forms.Timer;
 
 namespace Gili
 {
-    enum View { Idle, Media, Timer, PrayerSoon, Volume, Charge, LowBattery, Track, Privacy, TimerDone, Adzan, Info, Expanded, Hint, Lyric, Clip, Rain, Network, Device, Saver, Eyes, Meeting, MeetingSoon, Brightness, Notif }
+    enum View { Idle, Media, Timer, Volume, Charge, LowBattery, Track, Privacy, TimerDone, Info, Expanded, Hint, Lyric, Clip, Rain, Network, Device, Saver, Eyes, Meeting, MeetingSoon, Brightness, Notif }
 
     /// <summary>A short-lived "live activity" that temporarily takes over the island.</summary>
     class Toast
@@ -69,10 +69,7 @@ namespace Gili
         int battery = 100;
         string[] micApps = new string[0], camApps = new string[0];
         bool fullscreen;
-        PrayerSchedule prayers;
-        string notifiedAdzan = "";
         bool locating;
-        DateTime lastLocateUtc = DateTime.MinValue;
         Toast toast;
         DateTime volumeHudUntil;
         DateTime glowStart, glowUntil;
@@ -111,7 +108,7 @@ namespace Gili
         readonly WinTimer hoverTimer = new WinTimer(), leaveTimer = new WinTimer(), fullscreenTimer = new WinTimer();
         NotifyIcon tray;
         ContextMenuStrip menu;
-        ToolStripMenuItem autoStartItem, adzanItem, visualizerItem, locationItem;
+        ToolStripMenuItem autoStartItem, visualizerItem, locationItem;
         Icon trayIcon;
 
         public IslandForm()
@@ -124,7 +121,7 @@ namespace Gili
             Bounds = new Rectangle(-32000, -32000, 1, 1);
 
             Theme.Init();
-            Theme.Apply(settings.Get("theme", "hitam"));
+            Theme.Apply(settings.Get("theme", "dark"));
             bgColor = Theme.Bg;
             pomo.Load(settings);
             edgeTimer.Tick += delegate { EdgeTick(); };
@@ -202,11 +199,11 @@ namespace Gili
             audio.Start();
             privacy.Start();
             ReadPower();
-            SetupPrayers();
+            if (!settings.Has("lat") || !settings.Has("lon")) DetectLocation(false);
             CheckFullscreen();
 
             int hour = DateTime.Now.Hour;
-            string greeting = hour < 11 ? "Selamat pagi" : hour < 15 ? "Selamat siang" : hour < 18 ? "Selamat sore" : "Selamat malam";
+            string greeting = hour < 11 ? "Good morning" : hour < 15 ? "Good afternoon" : hour < 18 ? "Good evening" : "Good evening";
             UpdateEdgeWatch();
             StartClipboard();
             StartNotifications();
@@ -219,7 +216,7 @@ namespace Gili
             MaybeRefreshWeather();
             var t = ShowToast(View.Info, 2.6, 1, false, true);
             t.Glyph = hour >= 6 && hour < 18 ? Theme.IconSun : Theme.IconMoon;
-            t.Color = hour >= 6 && hour < 18 ? Theme.Orange : Theme.Prayer;
+            t.Color = hour >= 6 && hour < 18 ? Theme.Orange : Theme.Green;
             t.Title = greeting;
             t.Detail = ClockText();
 
@@ -381,15 +378,6 @@ namespace Gili
             return mediaInfo.Playing || (DateTime.UtcNow - pausedSinceUtc).TotalSeconds < 120;
         }
 
-        bool PrayerSoon()
-        {
-            if (prayers == null || !settings.GetBool("prayer.notify", true)) return false;
-            int i; DateTime t;
-            prayers.Next(DateTime.Now, out i, out t);
-            double minutes = (t - DateTime.Now).TotalMinutes;
-            return minutes > 0 && minutes <= 15;
-        }
-
         View DesiredView()
         {
             if (expanded) return View.Expanded;
@@ -399,7 +387,6 @@ namespace Gili
             if (MediaVisible()) return LyricOnScreen(DateTime.UtcNow) ? View.Lyric : View.Media;
             if (pomo.Active) return View.Timer;
             if (SoonMeeting() != null) return View.MeetingSoon;
-            if (PrayerSoon()) return View.PrayerSoon;
             return EyesWanted() ? View.Eyes : View.Idle;
         }
 
@@ -408,7 +395,6 @@ namespace Gili
             if (expanded || toast != null || (current != View.Media && current != View.Lyric)) return false;
             if (pomo.Active) { bubblePage = 1; return true; }
             if (SoonMeeting() != null) { bubblePage = AgendaPage; return true; }
-            if (PrayerSoon()) { bubblePage = 2; return true; }
             return false;
         }
 
@@ -422,7 +408,6 @@ namespace Gili
                 case View.Media: return new SizeF(234 + PrivacyExtra() + UnreadExtra(), 36);
                 case View.Lyric: return new SizeF(LyricWidth(), 36);
                 case View.Timer: return new SizeF(214 + PrivacyExtra(), 36);
-                case View.PrayerSoon: return new SizeF(232 + PrivacyExtra(), 36);
                 case View.Volume: return new SizeF(300, 44);
                 case View.Charge:
                 case View.LowBattery: return new SizeF(340, 46);
@@ -436,7 +421,6 @@ namespace Gili
                 case View.Track: return new SizeF(360, 74);
                 case View.Privacy: return new SizeF(290, 38);
                 case View.TimerDone: return new SizeF(372, 118);
-                case View.Adzan: return new SizeF(372, 112);
                 case View.Info: return new SizeF(InfoWidth(), 40);
                 case View.Hint: return new SizeF(56 + 90 * Ease.OutCubic(dwellProgress), 4 + 2 * dwellProgress);
                 case View.Clip: return new SizeF(ClipToastWidth(toast != null ? toast.Data as ClipItem : null), toast != null && toast.Data is ClipItem && ((ClipItem)toast.Data).Kind == ClipKind.Image ? 70 : 44);
@@ -455,7 +439,6 @@ namespace Gili
                 case View.Hint: return 3;
                 case View.TimerDone:
                 case View.Meeting:
-                case View.Adzan: r = 34; break;
                 case View.Track: r = 28; break;
                 default: r = size.Height / 2; break;
             }
@@ -651,7 +634,7 @@ namespace Gili
         /// <summary>Theme background; the adaptive theme tints it with the artwork colour while music shows.</summary>
         Color TargetBg()
         {
-            if (settings.Get("theme", "hitam") != "adaptif" || !mediaInfo.Present) return Theme.Bg;
+            if (settings.Get("theme", "dark") != "adaptive" || !mediaInfo.Present) return Theme.Bg;
             bool musicOnScreen = current == View.Media || current == View.Lyric || current == View.Track || (current == View.Expanded && page == 0);
             return musicOnScreen ? Theme.Tint(mediaInfo.Accent) : Theme.Bg;
         }
@@ -759,7 +742,6 @@ namespace Gili
             if (unreadNotifs > 0 && NotifEnabled) return NotifPage;
             if (SoonMeeting() != null) return AgendaPage;
             if (pomo.Active) return 1;
-            if (prayers != null) return 2;
             return mediaInfo.Present ? 0 : 1;
         }
 
@@ -1026,10 +1008,7 @@ namespace Gili
                 SetMood(Mood.Happy, 30);
                 Pulse(PomoColor(pomo.Mode), 3);
             }
-            if (prayers == null || prayers.Day != local.Date) SetupPrayers();
-            CheckAdzan(local);
             if (mediaInfo.Present) SyncLyricsTrack(); // late durations and retries after a busy server
-            CheckImsak(local);
             MaybeRefreshWeather();
             CheckRain();
             if (local.Second == 0 || agenda.Count == 0 && meetings.Count > 0) RefreshAgenda(); // drop finished meetings, roll over at midnight
@@ -1041,49 +1020,15 @@ namespace Gili
             string minute = local.ToString("HHmm", Inv);
             bool redraw = minute != lastMinute;
             lastMinute = minute;
-            if (pomo.Running || PrayerSoon() || SoonMeeting() != null || expanded || DesiredView() != current || BubbleWanted() != (bubble.Target > 0.5f))
+            if (pomo.Running || SoonMeeting() != null || expanded || DesiredView() != current || BubbleWanted() != (bubble.Target > 0.5f))
                 redraw = true;
             if (redraw) Kick();
-        }
-
-        void CheckAdzan(DateTime local)
-        {
-            if (prayers == null || !settings.GetBool("prayer.notify", true)) return;
-            foreach (int i in PrayerCalc.Adzan)
-            {
-                DateTime t = prayers.Times[i];
-                if (local < t || local >= t.AddMinutes(2)) continue;
-                string key = t.ToString("yyyyMMddHHmm", Inv) + i;
-                if (key == notifiedAdzan) continue;
-                notifiedAdzan = key;
-                var ts = ShowToast(View.Adzan, 30, 3, true);
-                if (ts != null)
-                {
-                    ts.Title = PrayerCalc.Names[i];
-                    ts.Detail = Hm(t);
-                }
-                Chime.Adzan();
-                Pulse(Theme.Prayer, 4);
-            }
-        }
-
-        void SetupPrayers()
-        {
-            if (!settings.Has("lat") || !settings.Has("lon"))
-            {
-                prayers = null;
-                if ((DateTime.UtcNow - lastLocateUtc).TotalMinutes > 10) DetectLocation(false);
-                return;
-            }
-            prayers = PrayerSchedule.For(DateTime.Now, settings.GetDouble("lat", 0), settings.GetDouble("lon", 0),
-                                         settings.Get("city", ""), settings.GetInt("prayer.ihtiyat", 2));
         }
 
         void DetectLocation(bool announce)
         {
             if (locating) return;
             locating = true;
-            lastLocateUtc = DateTime.UtcNow;
             Kick();
             ThreadPool.QueueUserWorkItem(delegate
             {
@@ -1093,18 +1038,16 @@ namespace Gili
                     locating = false;
                     if (r == null)
                     {
-                        if (announce) ShowInfo(Theme.IconPin, Theme.Red, "Lokasi gagal dideteksi", "cek internet");
+                        if (announce) ShowInfo(Theme.IconPin, Theme.Red, "Unable to detect location", "Check your internet connection");
                         Kick();
                         return;
                     }
                     settings.Set("lat", r.Lat.ToString("0.0000", Inv));
                     settings.Set("lon", r.Lon.ToString("0.0000", Inv));
                     settings.Set("city", r.City);
-                    settings.Set("bmkg.adm4", ""); // re-resolve the weather station for the new place
                     nextWeatherUtc = DateTime.MinValue;
                     settings.Save();
-                    SetupPrayers();
-                    if (announce) ShowInfo(Theme.IconPin, Theme.Prayer, "Lokasi sholat", r.City);
+                    if (announce) ShowInfo(Theme.IconPin, Theme.Green, "Weather location updated", r.City);
                     Kick();
                 });
             });
@@ -1116,7 +1059,7 @@ namespace Gili
         {
             var now = DateTime.UtcNow;
             if (toast != null && toast.Priority > priority) return null;
-            // While hidden, only things worth interrupting for drop the island down (charger, mic, timer, adzan).
+            // While hidden, only high-priority activity interrupts the island.
             if (AutoHide && !revealed && !force && !demoActive && priority < 2) return null;
             if (expanded)
             {
@@ -1176,57 +1119,47 @@ namespace Gili
         void BuildTray()
         {
             menu = new ContextMenuStrip();
-            var title = new ToolStripMenuItem("Gili · Terinspirasi Dynamic Island") { Enabled = false };
-            autoStartItem = new ToolStripMenuItem("Mulai bersama Windows", null, delegate
+            var title = new ToolStripMenuItem("Gili · Dynamic Island for Windows") { Enabled = false };
+            autoStartItem = new ToolStripMenuItem("Start with Windows", null, delegate
             {
                 try { AutoStart.Enabled = !AutoStart.Enabled; }
                 catch (Exception ex) { Log.Write("autostart: " + ex.Message); }
             });
-            adzanItem = new ToolStripMenuItem("Pengingat adzan", null, delegate
-            {
-                settings.Set("prayer.notify", !settings.GetBool("prayer.notify", true));
-                settings.Save();
-                Kick();
-            });
-            visualizerItem = new ToolStripMenuItem("Visualizer musik", null, delegate
+            visualizerItem = new ToolStripMenuItem("Music visualizer", null, delegate
             {
                 settings.Set("visualizer", !settings.GetBool("visualizer", true));
                 settings.Save();
                 Kick();
             });
-            locationItem = new ToolStripMenuItem("Lokasi sholat");
-            locationItem.DropDownItems.Add("Deteksi ulang otomatis", null, delegate { DetectLocation(true); });
-            locationItem.DropDownItems.Add("Ubah manual (buka settings.ini)", null, delegate
+            locationItem = new ToolStripMenuItem("Weather location");
+            locationItem.DropDownItems.Add("Detect location again", null, delegate { DetectLocation(true); });
+            locationItem.DropDownItems.Add("Edit manually (open settings.ini)", null, delegate
             {
                 settings.Save();
                 try { Process.Start("notepad.exe", "\"" + settings.FilePath + "\""); }
                 catch (Exception ex) { Log.Write("notepad: " + ex.Message); }
             });
-            locationItem.DropDownItems.Add("Muat ulang pengaturan", null, delegate
+            locationItem.DropDownItems.Add("Reload settings", null, delegate
             {
                 settings.Load();
-                SetupPrayers();
+                nextWeatherUtc = DateTime.MinValue;
+                MaybeRefreshWeather();
                 Kick();
             });
-            var openSettings = new ToolStripMenuItem("Pengaturan", null, delegate { revealed = AutoHide; Expand(SettingsPage); });
-            var addMeeting = new ToolStripMenuItem("Tambah rapat…", null, delegate { OpenMeetingDialog(null); });
-            var demo = new ToolStripMenuItem("Lihat demo animasi", null, delegate { StartDemo(); });
-            var exit = new ToolStripMenuItem("Keluar", null, delegate { Close(); });
-
-            menu.Items.AddRange(new ToolStripItem[] {
-                title, new ToolStripSeparator(), addMeeting, openSettings, autoStartItem, adzanItem, visualizerItem, locationItem,
-                new ToolStripSeparator(), demo, exit });
+            var openSettings = new ToolStripMenuItem("Settings", null, delegate { revealed = AutoHide; Expand(SettingsPage); });
+            var addMeeting = new ToolStripMenuItem("Add meeting…", null, delegate { OpenMeetingDialog(null); });
+            var demo = new ToolStripMenuItem("View animation demo", null, delegate { StartDemo(); });
+            var exit = new ToolStripMenuItem("Exit", null, delegate { Close(); });
+            menu.Items.AddRange(new ToolStripItem[] { title, new ToolStripSeparator(), addMeeting, openSettings, autoStartItem, visualizerItem, locationItem, new ToolStripSeparator(), demo, exit });
             menu.Opening += delegate
             {
                 try { autoStartItem.Checked = AutoStart.Enabled; } catch { }
-                adzanItem.Checked = settings.GetBool("prayer.notify", true);
                 visualizerItem.Checked = settings.GetBool("visualizer", true);
                 string city = settings.Get("city", "");
-                locationItem.Text = "Lokasi sholat: " + (city.Length > 0 ? city : prayers != null ? "manual" : "belum ada");
+                locationItem.Text = "Weather location: " + (city.Length > 0 ? city : settings.Has("lat") ? "configured" : "not set");
             };
-
             trayIcon = MakeTrayIcon();
-            tray = new NotifyIcon { Icon = trayIcon, Text = "Gili · Terinspirasi Dynamic Island", ContextMenuStrip = menu, Visible = true };
+            tray = new NotifyIcon { Icon = trayIcon, Text = "Gili · Dynamic Island for Windows", ContextMenuStrip = menu, Visible = true };
         }
 
         static Icon MakeTrayIcon()

@@ -160,11 +160,11 @@ namespace Gili
             var area = new RectangleF(18, 84, w - 36, 86);
             if (lyrics == null || lyrics.TrackKey != m.TrackKey || lyrics.Status == LyricsStatus.Loading)
             {
-                paint.TextCenter("Mencari lirik…", Theme.Ui(12.5f), Theme.Sub, w / 2, mid);
+                paint.TextCenter("Searching for lyrics…", Theme.Ui(12.5f), Theme.Sub, w / 2, mid);
             }
             else if (lyrics.Status == LyricsStatus.NotFound)
             {
-                paint.TextCenter("Lirik belum tersedia untuk lagu ini", Theme.Semi(13f), Theme.Sub, w / 2, mid - 8);
+                paint.TextCenter("Lyrics are not available for this track", Theme.Semi(13f), Theme.Sub, w / 2, mid - 8);
                 paint.TextCenter("Sumber: LRCLIB", Theme.Ui(11f), Theme.Faint, w / 2, mid + 12);
             }
             else
@@ -237,7 +237,7 @@ namespace Gili
             Kick();
         }
 
-        /// <summary>"Lirik" switch in the top-right corner of the music panel.</summary>
+        /// <summary>"Lyrics" switch in the top-right corner of the music panel.</summary>
         void DrawLyricsToggle(float w)
         {
             if (!LyricsEnabled) return;
@@ -245,7 +245,7 @@ namespace Gili
             var r = new RectangleF(w - 18 - 62, 46, 62, 24);
             Color accent = mediaInfo.Accent;
             paint.FillRound(r, 12, on ? Theme.WithAlpha(accent, 0.24f) : Hover("lyrToggle") ? Theme.FillHover : Theme.Fill);
-            paint.TextCenter("Lirik", Theme.Semi(11.5f), on ? accent : Theme.Sub, r.X + r.Width / 2, r.Y + 12);
+            paint.TextCenter("Lyrics", Theme.Semi(11.5f), on ? accent : Theme.Sub, r.X + r.Width / 2, r.Y + 12);
             AddHit(r, "lyrToggle", delegate { SetSetting("lyricsPanel", !LyricsPanel); });
         }
     }

@@ -18,7 +18,7 @@ namespace Gili
         public int RemindMin = 5;
 
         public static readonly string[] RepeatKeys = { "none", "daily", "weekdays", "weekly" };
-        public static readonly string[] RepeatLabels = { "Tidak diulang", "Setiap hari", "Hari kerja (Sen–Jum)", "Setiap minggu" };
+        public static readonly string[] RepeatLabels = { "Does not repeat", "Daily", "Weekdays (Mon–Fri)", "Weekly" };
 
         /// <summary>Occurrences that overlap [from, to).</summary>
         public IEnumerable<CalEvent> Occurrences(DateTime from, DateTime to)
@@ -46,7 +46,7 @@ namespace Gili
         {
             return new CalEvent
             {
-                Uid = Id, Title = Title.Length > 0 ? Title : "Rapat", Start = s, End = s + length,
+                Uid = Id, Title = Title.Length > 0 ? Title : "Meeting", Start = s, End = s + length,
                 Link = string.IsNullOrEmpty(Link) ? null : Link.Trim(), RemindMin = RemindMin, Source = this
             };
         }

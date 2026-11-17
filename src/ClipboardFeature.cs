@@ -30,7 +30,7 @@ namespace Gili
         {
             get
             {
-                if (Kind == ClipKind.Image) return "Gambar " + ImageSize.Width + "×" + ImageSize.Height;
+                if (Kind == ClipKind.Image) return "Image " + ImageSize.Width + "×" + ImageSize.Height;
                 if (Kind == ClipKind.Files)
                 {
                     var f = Files;
@@ -222,7 +222,7 @@ namespace Gili
                 string target = Path.Combine(dir, "Gili " + item.Time.ToString("yyyy-MM-dd HHmmss") + ".png");
                 File.Copy(item.ImagePath, target, true);
                 DismissToast();
-                ShowInfo(Theme.IconPin, Theme.Green, "Disimpan", "Gambar\\Screenshots", true);
+                ShowInfo(Theme.IconPin, Theme.Green, "Saved", "Pictures\\Screenshots", true);
             }
             catch (Exception ex) { Log.Write("save clip: " + ex.Message); }
         }
@@ -272,16 +272,16 @@ namespace Gili
             if (item.Kind == ClipKind.Image)
             {
                 DrawClipBadge(item, new RectangleF(12, 10, 64, h - 20));
-                paint.Text("Gambar disalin", Theme.Semi(13.5f), Theme.Text, 88, h / 2 - 9);
+                paint.Text("Image copied", Theme.Semi(13.5f), Theme.Text, 88, h / 2 - 9);
                 paint.Text(item.ImageSize.Width + "×" + item.ImageSize.Height, Theme.Ui(11.5f), Theme.Sub, 88, h / 2 + 10);
-                PillButton(new RectangleF(w - 18 - 76 - 8 - 62, h / 2 - 15, 76, 30), "clipSave", "Simpan", Theme.Fill, Theme.Text,
+                PillButton(new RectangleF(w - 18 - 76 - 8 - 62, h / 2 - 15, 76, 30), "clipSave", "Save", Theme.Fill, Theme.Text,
                            delegate { SaveClipImage(item); });
-                PillButton(new RectangleF(w - 18 - 62, h / 2 - 15, 62, 30), "clipOpen", "Buka", Theme.Fill, Theme.Text,
+                PillButton(new RectangleF(w - 18 - 62, h / 2 - 15, 62, 30), "clipOpen", "Open", Theme.Fill, Theme.Text,
                            delegate { OpenClipImage(item); });
                 return;
             }
             DrawClipBadge(item, new RectangleF(9, 8, 28, 28));
-            string title = item.Kind == ClipKind.Files ? (item.Files.Length == 1 ? "File disalin" : item.Files.Length + " file disalin") : "Teks disalin";
+            string title = item.Kind == ClipKind.Files ? (item.Files.Length == 1 ? "File copied" : item.Files.Length + " files copied") : "Text copied";
             paint.Text(title, Theme.Semi(12.5f), Theme.Text, 46, 15);
             paint.Text(item.Preview, Theme.Ui(11.5f), Theme.Sub, 46, 30, w - 46 - 16, StringAlignment.Near);
         }
@@ -290,22 +290,22 @@ namespace Gili
         {
             if (!ClipboardEnabled)
             {
-                paint.TextCenter("Riwayat clipboard dimatikan", Theme.Semi(13.5f), Theme.Sub, w / 2, 110);
-                paint.TextCenter("Nyalakan di tab Pengaturan", Theme.Ui(11.5f), Theme.Faint, w / 2, 132);
+                paint.TextCenter("Clipboard history is disabled", Theme.Semi(13.5f), Theme.Sub, w / 2, 110);
+                paint.TextCenter("Enable this in Settings", Theme.Ui(11.5f), Theme.Faint, w / 2, 132);
                 return;
             }
             if (clips.Count == 0)
             {
                 paint.Icon(Theme.IconPaste, 24, Theme.Faint, w / 2, 96);
-                paint.TextCenter("Belum ada yang disalin", Theme.Semi(14f), Theme.Sub, w / 2, 130);
-                paint.TextCenter("Teks, gambar, screenshot, dan file yang kamu salin muncul di sini", Theme.Ui(11.5f), Theme.Faint, w / 2, 152);
+                paint.TextCenter("Nothing copied yet", Theme.Semi(14f), Theme.Sub, w / 2, 130);
+                paint.TextCenter("Text, images, screenshots and files you copy appear here", Theme.Ui(11.5f), Theme.Faint, w / 2, 152);
                 return;
             }
 
-            paint.Text("Riwayat salin · " + clips.Count, Theme.Ui(11.5f), Theme.Sub, 20, 54);
+            paint.Text("Clipboard history · " + clips.Count, Theme.Ui(11.5f), Theme.Sub, 20, 54);
             var clear = new RectangleF(w - 18 - 92, 43, 92, 22);
             if (Hover("clipClear")) paint.FillRound(clear, 11, Theme.Fill);
-            paint.TextCenter("Hapus semua", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
+            paint.TextCenter("Clear all", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
             AddHit(clear, "clipClear", delegate
             {
                 foreach (var c in clips) DeleteClipFile(c);
@@ -330,7 +330,7 @@ namespace Gili
                 else if (Hover(id) || Hover(del)) paint.FillRound(row, 10, Theme.Fill);
                 DrawClipBadge(item, new RectangleF(row.X + 6, row.Y + 3, item.Kind == ClipKind.Image ? 38 : 24, row.Height - 6));
                 float tx = row.X + (item.Kind == ClipKind.Image ? 54 : 40);
-                paint.Text(flash ? "Disalin lagi" : item.Preview, Theme.Ui(12.5f), flash ? Theme.Green : Theme.Text, tx, row.Y + row.Height / 2,
+                paint.Text(flash ? "Copied again" : item.Preview, Theme.Ui(12.5f), flash ? Theme.Green : Theme.Text, tx, row.Y + row.Height / 2,
                            row.Right - tx - 64, StringAlignment.Near);
                 if (Hover(id) || Hover(del))
                 {

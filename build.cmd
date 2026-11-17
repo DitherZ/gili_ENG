@@ -15,7 +15,7 @@ set ROOT=%~dp0
   /r:"%FW%\System.Runtime.dll" /r:"%FW%\System.Runtime.InteropServices.WindowsRuntime.dll" /r:"%FW%\System.Runtime.WindowsRuntime.dll" ^
   "%ROOT%src\*.cs"
 if errorlevel 1 (
-  echo Build GAGAL.
+  echo Build failed.
   exit /b 1
 )
 echo Build OK: %ROOT%Gili.exe

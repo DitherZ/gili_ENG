@@ -30,7 +30,6 @@ namespace Gili
 
         static readonly Dictionary<string, int> KnownOffsets = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
-            { "Asia/Jakarta", 420 }, { "Asia/Pontianak", 420 }, { "Asia/Makassar", 480 }, { "Asia/Jayapura", 540 },
             { "Asia/Singapore", 480 }, { "Asia/Kuala_Lumpur", 480 }, { "Asia/Bangkok", 420 }, { "Asia/Tokyo", 540 },
             { "UTC", 0 }, { "Etc/UTC", 0 }, { "GMT", 0 }
         };
@@ -112,7 +111,7 @@ namespace Gili
                     var m = MeetingLink.Match(Unescape(Get(r, field)));
                     if (m.Success) { template.Link = m.Value.TrimEnd('.', ',', ')'); break; }
                 }
-                if (template.Title.Length == 0) template.Title = "(Tanpa judul)";
+                if (template.Title.Length == 0) template.Title = "(Untitled)";
 
                 var excluded = new HashSet<string>();
                 for (int i = 0; i < r.ExDates.Count; i++)
