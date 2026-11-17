@@ -635,7 +635,7 @@ namespace Gili
         /// <summary>Theme background; the adaptive theme tints it with the artwork colour while music shows.</summary>
         Color TargetBg()
         {
-            if (settings.Get("theme", "dark") != "adaptive" || !mediaInfo.Present) return Theme.Bg;
+            if (settings.Get("theme", "dark") != "adaptive" && settings.Get("theme", "dark") != "adaptif" || !mediaInfo.Present) return Theme.Bg;
             bool musicOnScreen = current == View.Media || current == View.Lyric || current == View.Track || (current == View.Expanded && page == 0);
             return musicOnScreen ? Theme.Tint(mediaInfo.Accent) : Theme.Bg;
         }
