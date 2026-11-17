@@ -8,8 +8,8 @@ namespace Gili
     /// <summary>Drawing of every island view. All coordinates are DIPs relative to the view's top-left.</summary>
     partial class IslandForm
     {
-        static readonly string[] DayNames = { "Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab" };
-        static readonly string[] MonthNames = { "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des" };
+        static readonly string[] DayNames = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+        static readonly string[] MonthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
         static readonly int[] CompactBands = { 1, 4, 7, 10, 14 };
         static readonly int[] TrackBands = { 2, 6, 10, 15 };
         static readonly Color Ink = Color.FromArgb(255, 22, 22, 24);
@@ -35,15 +35,13 @@ namespace Gili
                 case View.Idle: DrawIdle(w, h); break;
                 case View.Media: DrawMediaCompact(w, h); break;
                 case View.Timer: DrawTimerCompact(w, h, now); break;
-                case View.PrayerSoon: DrawPrayerSoon(w, h); break;
-                case View.Volume: DrawVolume(w, h); break;
+                                case View.Volume: DrawVolume(w, h); break;
                 case View.Charge: DrawCharge(w, h, now, false); break;
                 case View.LowBattery: DrawCharge(w, h, now, true); break;
                 case View.Track: DrawTrack(w, h); break;
                 case View.Privacy: DrawPrivacy(w, h); break;
                 case View.TimerDone: DrawTimerDone(w, h); break;
-                case View.Adzan: DrawAdzan(w, h); break;
-                case View.Info: DrawInfo(w, h); break;
+                                case View.Info: DrawInfo(w, h); break;
                 case View.Expanded: DrawExpanded(w, h, now); break;
                 case View.Hint: break; // the shell itself is the line
                 case View.Lyric: DrawLyricCompact(w, h, now); break;
@@ -98,15 +96,15 @@ namespace Gili
 
         static string Countdown(TimeSpan left)
         {
-            if (left.TotalSeconds < 60) return "dalam " + Math.Max(1, (int)Math.Ceiling(left.TotalSeconds)) + " detik";
+            if (left.TotalSeconds < 60) return "in " + Math.Max(1, (int)Math.Ceiling(left.TotalSeconds)) + " sec";
             int minutes = (int)Math.Ceiling(left.TotalMinutes);
-            if (minutes < 60) return "dalam " + minutes + " menit";
-            return "dalam " + (minutes / 60) + " jam " + (minutes % 60) + " menit";
+            if (minutes < 60) return "in " + minutes + " min";
+            return "in " + (minutes / 60) + " hr " + (minutes % 60) + " min";
         }
 
         static string ModeName(PomoMode m)
         {
-            return m == PomoMode.Focus ? "Fokus" : m == PomoMode.Short ? "Istirahat" : "Istirahat panjang";
+            return m == PomoMode.Focus ? "Focus" : m == PomoMode.Short ? "Short break" : "Long break";
         }
 
         static Color PomoColor(PomoMode m)
@@ -114,21 +112,11 @@ namespace Gili
             return m == PomoMode.Focus ? Theme.Focus : m == PomoMode.Short ? Theme.Break : Theme.LongBreak;
         }
 
-        string IdlePrayerText()
-        {
-            if (prayers == null) return null;
-            int i; DateTime t;
-            prayers.Next(DateTime.Now, out i, out t);
-            return PrayerCalc.Names[i] + " " + Hm(t);
-        }
-
         float IdleWidth()
         {
             float w = 16 + paint.Measure(ClockText(), Theme.Semi(13.5f)) + 16 + PrivacyExtra() + UnreadExtra();
             var wx = CurrentWeather();
             if (wx != null) w += 12 + 20 + paint.Measure(Temp(wx), Theme.Semi(12.5f));
-            string pt = IdlePrayerText();
-            if (pt != null) w += 24 + 14 + paint.Measure(pt, Theme.Ui(12.5f));
             return Math.Max(76, w);
         }
 
@@ -197,14 +185,6 @@ namespace Gili
                 WeatherArt.Draw(paint, wx.Code, x + 8, cy, 15, IsNight(DateTime.Now));
                 paint.Text(Temp(wx), Theme.Semi(12.5f), Theme.Sub, x + 19, cy);
             }
-            string pt = IdlePrayerText();
-            if (pt != null)
-            {
-                float right = w - 16 - PrivacyExtra() - UnreadExtra();
-                float tw = paint.Measure(pt, Theme.Ui(12.5f));
-                paint.TextRight(pt, Theme.Ui(12.5f), Theme.Sub, right, cy);
-                paint.Icon(Theme.IconMoon, 11.5f, Theme.Prayer, right - tw - 10, cy);
-            }
             DrawUnreadBadge(w - 16 - PrivacyExtra() + 4, cy);
             DrawPrivacyDot(w, cy);
         }
@@ -226,20 +206,8 @@ namespace Gili
             Color c = PomoColor(pomo.Mode);
             bool run = pomo.Running;
             paint.Ring(20, cy, 8, 2.6f, (float)(rem / pomo.TotalMs()), Theme.WithAlpha(c, 0.25f), run ? c : Theme.Sub);
-            paint.Text(run ? ModeName(pomo.Mode) : "Dijeda", Theme.Semi(12.5f), run ? Theme.Text : Theme.Sub, 36, cy, w - 36 - 70, StringAlignment.Near);
+            paint.Text(run ? ModeName(pomo.Mode) : "Paused", Theme.Semi(12.5f), run ? Theme.Text : Theme.Sub, 36, cy, w - 36 - 70, StringAlignment.Near);
             paint.TextRight(Mmss(rem), Theme.Semi(14.5f), run ? c : Theme.Sub, w - 16 - PrivacyExtra(), cy);
-            DrawPrivacyDot(w, cy);
-        }
-
-        void DrawPrayerSoon(float w, float h)
-        {
-            if (prayers == null) return;
-            float cy = h / 2;
-            int i; DateTime t;
-            prayers.Next(DateTime.Now, out i, out t);
-            paint.Icon(Theme.IconMoon, 13, Theme.Prayer, 20, cy);
-            paint.Text(PrayerCalc.Names[i], Theme.Semi(12.5f), Theme.Text, 34, cy);
-            paint.TextRight("−" + Mmss((t - DateTime.Now).TotalMilliseconds), Theme.Semi(14.5f), Theme.Prayer, w - 16 - PrivacyExtra(), cy);
             DrawPrivacyDot(w, cy);
         }
 
@@ -255,7 +223,7 @@ namespace Gili
             paint.FillRound(track, 3.5f, Theme.FillHover);
             if (level > 0.005f)
                 paint.FillRound(new RectangleF(track.X, track.Y, Math.Max(track.Height, track.Width * level), track.Height), 3.5f, muted ? Theme.Sub : Theme.Text);
-            paint.TextRight(muted ? "Bisu" : ((int)Math.Round(Ease.Clamp01(volumeBar.Target) * 100)).ToString(), Theme.Semi(13.5f), Theme.Text, w - 20, cy);
+            paint.TextRight(muted ? "Muted" : ((int)Math.Round(Ease.Clamp01(volumeBar.Target) * 100)).ToString(), Theme.Semi(13.5f), Theme.Text, w - 20, cy);
         }
 
         void DrawTrack(float w, float h)
@@ -275,7 +243,7 @@ namespace Gili
             bool cam = toast.Flag;
             Color c = cam ? Theme.Green : Theme.Orange;
             paint.Icon(cam ? Theme.IconCam : Theme.IconMic, 14, c, 23, cy);
-            paint.Text(cam ? "Kamera aktif" : "Mikrofon aktif", Theme.Semi(13f), c, 39, cy);
+            paint.Text(cam ? "Camera in use" : "Microphone in use", Theme.Semi(13f), c, 39, cy);
             paint.Text(toast.Title, Theme.Ui(12.5f), Theme.Sub, w - 16, cy, 110, StringAlignment.Far);
         }
 
@@ -286,35 +254,21 @@ namespace Gili
             Color c = PomoColor(next);
             paint.FillCircle(37, 37, 19, Theme.WithAlpha(c, 0.2f));
             paint.Icon(Theme.IconTimer, 17, c, 37, 37);
-            string title = wasFocus ? "Sesi fokus selesai!" : "Istirahat selesai";
-            string sub = !wasFocus ? "Siap fokus lagi? " + pomo.FocusMin + " menit."
-                       : next == PomoMode.Long ? "Kerja bagus! Istirahat panjang " + pomo.LongMin + " menit."
-                       : "Saatnya istirahat " + pomo.ShortMin + " menit.";
+            string title = wasFocus ? "Focus session complete!" : "Break complete";
+            string sub = !wasFocus ? "Ready to focus again? " + pomo.FocusMin + " min."
+                       : next == PomoMode.Long ? "Great work! Take a " + pomo.LongMin + " min."
+                       : "Time for a break: " + pomo.ShortMin + " min.";
             paint.Text(title, Theme.Semi(15f), Theme.Text, 68, 29, w - 86, StringAlignment.Near);
             paint.Text(sub, Theme.Ui(12.5f), Theme.Sub, 68, 49, w - 86, StringAlignment.Near);
 
             float bw = (w - 36 - 10) * 0.62f;
-            PillButton(new RectangleF(18, 72, bw, 32), "doneStart", wasFocus ? "Mulai istirahat" : "Mulai fokus", c, Ink, delegate
+            PillButton(new RectangleF(18, 72, bw, 32), "doneStart", wasFocus ? "Start break" : "Start focus", c, Ink, delegate
             {
                 pomo.Start(DateTime.UtcNow);
                 SavePomo();
                 DismissToast();
             });
-            PillButton(new RectangleF(18 + bw + 10, 72, w - 36 - bw - 10, 32), "doneLater", "Nanti", Theme.Fill, Theme.Text, DismissToast);
-        }
-
-        void DrawAdzan(float w, float h)
-        {
-            if (toast == null) return;
-            paint.FillCircle(37, 36, 19, Theme.WithAlpha(Theme.Prayer, 0.2f));
-            paint.Icon(Theme.IconMoon, 16, Theme.Prayer, 37, 36);
-            string headline = toast.Title == "Imsak" ? "Waktu imsak"
-                            : toast.Title == "Maghrib" && RamadanToday() ? "Waktunya berbuka puasa"
-                            : "Waktunya sholat " + toast.Title;
-            paint.Text(headline, Theme.Semi(15f), Theme.Text, 68, 28, w - 86, StringAlignment.Near);
-            string city = prayers != null && prayers.City.Length > 0 ? " · " + prayers.City : "";
-            paint.Text(toast.Detail + city, Theme.Ui(12.5f), Theme.Sub, 68, 48, w - 86, StringAlignment.Near);
-            PillButton(new RectangleF(18, 68, w - 36, 30), "adzanClose", "Tutup", Theme.Fill, Theme.Text, DismissToast);
+            PillButton(new RectangleF(18 + bw + 10, 72, w - 36 - bw - 10, 32), "doneLater", "Later", Theme.Fill, Theme.Text, DismissToast);
         }
 
         void DrawInfo(float w, float h)
@@ -331,7 +285,7 @@ namespace Gili
 
         void DrawExpanded(float w, float h, DateTime now)
         {
-            char[] tabs = { Theme.IconMusic, Theme.IconTimer, Theme.IconMoon, Theme.IconCalendar, Theme.IconSystem, Theme.IconBell, Theme.IconPaste, Theme.IconFolder, Theme.IconSettings };
+            char[] tabs = { Theme.IconMusic, Theme.IconTimer, Theme.IconSun, Theme.IconCalendar, Theme.IconSystem, Theme.IconBell, Theme.IconPaste, Theme.IconFolder, Theme.IconSettings };
             paint.FillRound(new RectangleF(14 + pageSpring.Value * 36, 12, 32, 26), 13, Theme.FillHover);
             for (int i = 0; i < tabs.Length; i++)
             {
@@ -346,7 +300,7 @@ namespace Gili
             float right = w - 18, cy = 25;
             if (now < volumeHudUntil)
             {
-                string s = muted ? "Bisu" : (int)Math.Round(volume * 100) + "%";
+                string s = muted ? "Muted" : (int)Math.Round(volume * 100) + "%";
                 float sw2 = paint.Measure(s, Theme.Semi(12.5f));
                 paint.TextRight(s, Theme.Semi(12.5f), Theme.Text, right, cy);
                 paint.Icon(muted ? Theme.IconMute : Theme.IconVol3, 13, Theme.Text, right - sw2 - 12, cy);
@@ -377,7 +331,7 @@ namespace Gili
                 collectHits = baseCollect && Math.Abs(d) < 0.05f;
                 if (i == 0) DrawMediaPage(w, h, now);
                 else if (i == 1) DrawFocusPage(w, h, now);
-                else if (i == 2) DrawPrayerPage(w, h);
+                else if (i == 2) DrawWeatherPage(w, h);
                 else if (i == AgendaPage) DrawAgendaPage(w, h);
                 else if (i == SystemPage) DrawSystemPage(w, h);
                 else if (i == NotifPage) DrawNotifPage(w, h);
@@ -396,8 +350,8 @@ namespace Gili
             if (!m.Present)
             {
                 paint.Icon(Theme.IconMusic, 24, Theme.Faint, w / 2, 98);
-                paint.TextCenter("Tidak ada yang diputar", Theme.Semi(14f), Theme.Sub, w / 2, 134);
-                paint.TextCenter("Putar lagu di Spotify, YouTube, atau aplikasi lain", Theme.Ui(11.5f), Theme.Faint, w / 2, 156);
+                paint.TextCenter("Nothing is playing", Theme.Semi(14f), Theme.Sub, w / 2, 134);
+                paint.TextCenter("Play music in Spotify, YouTube or another app", Theme.Ui(11.5f), Theme.Faint, w / 2, 156);
                 return;
             }
 
@@ -488,7 +442,7 @@ namespace Gili
             AddHit(new RectangleF(rcx - rr - 8, rcy - rr - 8, rr * 2 + 16, rr * 2 + 16), "ring", ToggleTimer);
 
             float x = 166;
-            string[] labels = { "Fokus " + pomo.FocusMin, "Pendek " + pomo.ShortMin, "Panjang " + pomo.LongMin };
+            string[] labels = { "Focus " + pomo.FocusMin, "Short " + pomo.ShortMin, "Long " + pomo.LongMin };
             for (int i = 0; i < 3; i++)
             {
                 int k = i;
@@ -509,11 +463,11 @@ namespace Gili
             }
 
             for (int i = 0; i < 4; i++) paint.FillCircle(171 + i * 12, 96, 3.5f, i < pomo.Cycle % 4 ? c : Theme.Faint);
-            paint.Text(pomo.DoneToday + " sesi selesai hari ini", Theme.Ui(11.5f), Theme.Sub, 171 + 4 * 12 + 2, 96);
+            paint.Text(pomo.DoneToday + " sessions completed today", Theme.Ui(11.5f), Theme.Sub, 171 + 4 * 12 + 2, 96);
 
             var main = new RectangleF(166, 122, 118, 38);
             paint.FillRound(main, 19, Hover("pomoMain") ? Theme.Mix(c, Color.White, 0.15f) : c);
-            string label = pomo.Running ? "Jeda" : pomo.RemainingMs < total - 500 ? "Lanjut" : "Mulai";
+            string label = pomo.Running ? "Pause" : pomo.RemainingMs < total - 500 ? "Resume" : "Start";
             float lw = paint.Measure(label, Theme.Semi(13.5f));
             float ix = main.X + main.Width / 2 - (lw + 20) / 2 + 6;
             if (pomo.Running) paint.PauseIcon(ix, main.Y + 19, 12, Ink);
@@ -526,65 +480,32 @@ namespace Gili
             CircleButton(352, 141, 19, "pomoSkip", delegate { pomo.Skip(); SavePomo(); Kick(); });
             paint.SkipIcon(352, 141, 13, Theme.Text, true);
 
-            if (!pomo.Running) paint.Text("Scroll di lingkaran untuk ubah durasi", Theme.Ui(10.5f), Theme.Faint, 166, 188);
+            if (!pomo.Running) paint.Text("Scroll the ring to adjust duration", Theme.Ui(10.5f), Theme.Faint, 166, 188);
         }
 
-        void DrawPrayerPage(float w, float h)
+        void DrawWeatherPage(float w, float h)
         {
-            if (prayers == null)
+            var current = CurrentWeather();
+            paint.Icon(Theme.IconPin, 20, Theme.Sub, 28, 78);
+            string place = weather != null && weather.Place.Length > 0 ? weather.Place : settings.Get("city", "Location not set");
+            paint.Text(place, Theme.Semi(15f), Theme.Text, 48, 78, w - 66, StringAlignment.Near);
+            if (current == null)
             {
-                paint.Icon(Theme.IconPin, 22, Theme.Faint, w / 2, 96);
-                paint.TextCenter(locating ? "Mendeteksi lokasi..." : "Lokasi belum diketahui", Theme.Semi(14f), Theme.Sub, w / 2, 130);
-                if (!locating) PillButton(new RectangleF(w / 2 - 70, 150, 140, 30), "locate", "Deteksi lokasi", Theme.Fill, Theme.Text, delegate { DetectLocation(true); });
+                paint.TextCenter("Weather data is not available yet", Theme.Ui(12f), Theme.Sub, w / 2, 126);
                 return;
             }
-
-            DrawTodayStrip(w);
-            var shifted = g.Save();
-            g.TranslateTransform(0, 22); // the Hijri / weather strip sits above the schedule
-
-            var local = DateTime.Now;
-            int ni; DateTime nt;
-            prayers.Next(local, out ni, out nt);
-            bool ramadan = RamadanToday();
-            string label = ramadan && ni == PrayerCalc.Maghrib ? "Buka puasa" : ramadan && ni == PrayerCalc.Subuh ? "Subuh · imsak " + Hm(prayers.Times[PrayerCalc.Imsak]) : "Berikutnya";
-            paint.Text(label, Theme.Ui(11.5f), ramadan ? Theme.Prayer : Theme.Sub, 18, 56);
-            paint.Text(PrayerCalc.Names[ni], Theme.Semi(22f), Theme.Text, 18, 80);
-            paint.Text(Hm(nt), Theme.Semi(30f), Theme.Prayer, 17, 114);
-            paint.Text(Countdown(nt - local), Theme.Ui(12f), Theme.Sub, 18, 145);
-            if (prayers.City.Length > 0)
-            {
-                paint.Icon(Theme.IconPin, 11, Theme.Faint, 24, 188);
-                paint.Text(prayers.City, Theme.Ui(11.5f), Theme.Faint, 34, 188, 140, StringAlignment.Near);
-            }
-
-            int[] order = { PrayerCalc.Subuh, PrayerCalc.Terbit, PrayerCalc.Dzuhur, PrayerCalc.Ashar, PrayerCalc.Maghrib, PrayerCalc.Isya };
-            float gx = 186, cw = (w - 18 - gx - 8) / 2, ch = 40;
-            for (int k = 0; k < order.Length; k++)
-            {
-                int pi = order[k];
-                var r = new RectangleF(gx + (k / 3) * (cw + 8), 46 + (k % 3) * (ch + 6), cw, ch);
-                DateTime t = prayers.Times[pi];
-                bool isNext = pi == ni && nt.Date == local.Date;
-                bool passed = t <= local;
-                paint.FillRound(r, 11, isNext ? Theme.WithAlpha(Theme.Prayer, 0.2f) : Theme.Fill);
-                float a0 = paint.Alpha;
-                if (passed) paint.Alpha = a0 * 0.45f;
-                paint.Text(PrayerCalc.Names[pi], Theme.Ui(11.5f), isNext ? Theme.Prayer : Theme.Sub, r.X + 12, r.Y + 13);
-                paint.Text(Hm(t), Theme.Semi(15f), isNext ? Theme.Prayer : Theme.Text, r.X + 12, r.Y + 28);
-                paint.Alpha = a0;
-            }
-            string credit = "Imsak " + Hm(prayers.Times[PrayerCalc.Imsak]) + " · Kemenag RI";
-            if (CurrentWeather() != null) credit += " · Cuaca: BMKG"; // BMKG's open data requires naming BMKG as the source
-            paint.TextRight(credit, Theme.Ui(10.5f), Theme.Faint, w - 18, 192);
-            g.Restore(shifted);
+            WeatherArt.Draw(paint, current.Code, 62, 135, 44, IsNight(DateTime.Now));
+            paint.Text(Math.Round(current.TempC) + "°", Theme.Semi(34f), Theme.Text, 100, 128);
+            paint.Text(current.Desc, Theme.Ui(13f), Theme.Sub, 102, 151);
+            paint.Text("Humidity  " + current.Humidity + "%", Theme.Ui(12f), Theme.Sub, 48, 190);
+            paint.Text("Forecast by Open-Meteo", Theme.Ui(10.5f), Theme.Faint, w - 18, 190, 0, StringAlignment.Far);
         }
 
         static int PageHeight(int p)
         {
             switch (p)
             {
-                case 2: return 238;           // prayer + Hijri/weather strip
+                case 2: return 212;           // weather
                 case AgendaPage: return 250;
                 case NotifPage: return 250;
                 case ClipboardPage: return 226;
@@ -616,14 +537,6 @@ namespace Gili
                     paint.Ring(bx, cy, br - 5.5f, 2.4f, frac, Theme.WithAlpha(MeetColor, 0.25f), MeetColor);
                     DrawCalendarIcon(bx, cy, 10, MeetColor);
                 }
-            }
-            else if (prayers != null)
-            {
-                int i; DateTime t;
-                prayers.Next(DateTime.Now, out i, out t);
-                float frac = (float)((t - DateTime.Now).TotalMinutes / 15.0);
-                paint.Ring(bx, cy, br - 5.5f, 2.4f, frac, Theme.WithAlpha(Theme.Prayer, 0.25f), Theme.Prayer);
-                paint.Icon(Theme.IconMoon, 10, Theme.Prayer, bx, cy);
             }
             paint.Alpha = 1f;
         }
