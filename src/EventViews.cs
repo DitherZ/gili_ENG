@@ -277,13 +277,13 @@ namespace Gili
                     float dy = inn ? -(1 - BackOut(age / 0.45f)) * 14 : -Ease.OutCubic(age / 0.5f) * 10;
                     float a0 = paint.Alpha;
                     if (!inn) paint.Alpha = a0 * (1 - Ease.OutCubic(age / 0.6f) * 0.7f);
-                    DrawUsb(24, cy + 1 + dy, inn ? Theme.Prayer : Theme.Sub);
+                    DrawUsb(24, cy + 1 + dy, inn ? Theme.Green : Theme.Sub);
                     paint.Alpha = a0;
                     TwoLines(e.Title, e.Detail, Theme.Text, 44, inn && e.Path != null ? w - 74 : w, h);
                     if (inn && e.Path != null)
                     {
                         string root = e.Path;
-                        PillButton(new RectangleF(w - 16 - 64, cy - 15, 64, 30), "usbOpen", "Buka", Theme.Fill, Theme.Text, delegate { OpenDrive(root); });
+                        PillButton(new RectangleF(w - 16 - 64, cy - 15, 64, 30), "usbOpen", "Open", Theme.Fill, Theme.Text, delegate { OpenDrive(root); });
                     }
                     break;
                 }
