@@ -174,10 +174,10 @@ namespace Gili
                 if (shelf.Count == 0 || dragOver)
                 {
                     paint.Icon(Theme.IconFolder, 22, edge, w / 2, zone.Y + zone.Height / 2 - 18);
-                    paint.TextCenter(dragOver ? "Lepas untuk menyimpan di shelf" : "Seret file ke sini",
+                    paint.TextCenter(dragOver ? "Drop to add to the shelf" : "Drop files here",
                                      Theme.Semi(13.5f), dragOver ? Theme.Prayer : Theme.Sub, w / 2, zone.Y + zone.Height / 2 + 10);
                     if (!dragOver)
-                        paint.TextCenter("Simpan sementara, lalu seret keluar ke chat, email, atau folder", Theme.Ui(11f), Theme.Faint,
+                        paint.TextCenter("Keep files here temporarily, then drag them into a chat, email or folder", Theme.Ui(11f), Theme.Faint,
                                          w / 2, zone.Y + zone.Height / 2 + 30);
                 }
                 if (dragOver || shelf.Count == 0) return;
