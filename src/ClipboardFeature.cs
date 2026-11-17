@@ -290,7 +290,7 @@ namespace Gili
         {
             if (!ClipboardEnabled)
             {
-                paint.TextCenter("Riwayat clipboard dimatikan", Theme.Semi(13.5f), Theme.Sub, w / 2, 110);
+                paint.TextCenter("Clipboard history is disabled", Theme.Semi(13.5f), Theme.Sub, w / 2, 110);
                 paint.TextCenter("Enable this in Settings", Theme.Ui(11.5f), Theme.Faint, w / 2, 132);
                 return;
             }
