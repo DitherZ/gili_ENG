@@ -79,7 +79,7 @@ namespace Gili
                 del.ForeColor = Color.FromArgb(255, 110, 100);
                 del.Click += delegate
                 {
-                    if (MessageBox.Show(this, "Hapus rapat \"" + meeting.Title + "\"" + (meeting.Repeat != "none" ? " (including all recurring instances)" : "") + "?",
+                    if (MessageBox.Show(this, "Delete meeting \"" + meeting.Title + "\"" + (meeting.Repeat != "none" ? " (including all recurring instances)" : "") + "?",
                                         "Gili", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
                     Deleted = true;
                     DialogResult = DialogResult.OK;
