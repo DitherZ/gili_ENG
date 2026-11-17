@@ -463,7 +463,7 @@ namespace Gili
 
         string NotifBody(NotifItem item)
         {
-            if (!NotifContent) return "Pesan baru";
+            if (!NotifContent) return "New message";
             return item.Body.Length > 0 ? item.Body : item.AppName;
         }
 
@@ -519,7 +519,7 @@ namespace Gili
             {
                 float hx = 20 + paint.Measure(head, Theme.Ui(11.5f)) + 14;
                 paint.Icon(Theme.IconBellOff, 11f, Theme.Orange, hx + 5, 54);
-                paint.Text("Jangan ganggu", Theme.Ui(11.5f), Theme.Orange, hx + 15, 54);
+                paint.Text("Do not disturb", Theme.Ui(11.5f), Theme.Orange, hx + 15, 54);
             }
             var clear = new RectangleF(w - 18 - 92, 43, 92, 22);
             if (Hover("notifClear")) paint.FillRound(clear, 11, Theme.Fill);
