@@ -140,7 +140,7 @@ namespace Gili
                         if (!dlg.Deleted)
                         {
                             var r = dlg.Result;
-                            ShowInfo(Theme.IconTimer, MeetColor, existing == null ? "Rapat ditambahkan" : "Rapat diperbarui",
+                            ShowInfo(Theme.IconTimer, MeetColor, existing == null ? "Meeting added" : "Meeting updated",
                                      r.Start.ToString("ddd HH:mm").Replace(':', '.'), true);
                         }
                     }
@@ -156,7 +156,7 @@ namespace Gili
             try { if (Clipboard.ContainsText()) text = Clipboard.GetText().Trim(); } catch { }
             if (!CalendarFeed.LooksLikeIcs(text))
             {
-                ShowInfo(Theme.IconPaste, Theme.Orange, "Salin dulu link iCal", "Google Calendar › Setelan", true);
+                ShowInfo(Theme.IconPaste, Theme.Orange, "Copy the iCal link first", "Google Calendar › Setelan", true);
                 return;
             }
             settings.Set("calendar.ics", text);
@@ -170,7 +170,7 @@ namespace Gili
 
         static string DayLabel(DateTime d)
         {
-            if (d.Date == DateTime.Today) return "Hari ini";
+            if (d.Date == DateTime.Today) return "Today";
             if (d.Date == DateTime.Today.AddDays(1)) return "Besok";
             return DayNames[(int)d.DayOfWeek] + ", " + d.Day + " " + MonthNames[d.Month - 1];
         }
@@ -179,8 +179,8 @@ namespace Gili
         {
             if (left.TotalSeconds <= 0) return "sedang berlangsung";
             int minutes = (int)Math.Ceiling(left.TotalMinutes);
-            if (minutes < 60) return "dalam " + minutes + " menit";
-            if (minutes < 24 * 60) return "dalam " + (minutes / 60) + " j " + (minutes % 60) + " m";
+            if (minutes < 60) return "in " + minutes + " min";
+            if (minutes < 24 * 60) return "in " + (minutes / 60) + " hr " + (minutes % 60) + " min";
             return "";
         }
 
@@ -219,7 +219,7 @@ namespace Gili
             bool started = toast.Flag;
             paint.FillCircle(37, 36, 19, Theme.WithAlpha(MeetColor, 0.2f));
             DrawCalendarIcon(37, 36, 18, MeetColor);
-            string head = started ? "Rapat dimulai" : "Rapat " + Math.Max(1, (int)Math.Ceiling((e.Start - DateTime.Now).TotalMinutes)) + " menit lagi";
+            string head = started ? "Meeting started" : "Meeting in " + Math.Max(1, (int)Math.Ceiling((e.Start - DateTime.Now).TotalMinutes)) + " min";
             paint.Text(head, Theme.Ui(11.5f), MeetColor, 68, 22, w - 86, StringAlignment.Near);
             paint.Text(e.Title, Theme.Semi(15f), Theme.Text, 68, 42, w - 86, StringAlignment.Near);
             float bw = w - 36;
@@ -237,9 +237,9 @@ namespace Gili
             var now = DateTime.Now;
             float top = 50;
             var add = new RectangleF(w - 18 - 118, top - 10, 118, 26);
-            PillButton(add, "meetAdd", "+ Tambah rapat", Theme.WithAlpha(MeetColor, 0.9f), Color.White, delegate { OpenMeetingDialog(null); });
+            PillButton(add, "meetAdd", "+ Add meeting", Theme.WithAlpha(MeetColor, 0.9f), Color.White, delegate { OpenMeetingDialog(null); });
             var next = OngoingOrNext();
-            string headline = next == null ? "Belum ada rapat" : next.Start <= now ? "Sedang berlangsung" : DayLabel(next.Start) + " · " + Until(next.Start - now);
+            string headline = next == null ? "No meetings scheduled" : next.Start <= now ? "In progress" : DayLabel(next.Start) + " · " + Until(next.Start - now);
             paint.Text("Agenda", Theme.Semi(14f), Theme.Text, 20, top + 3);
             paint.Text(headline, Theme.Ui(11.5f), Theme.Sub, 20 + paint.Measure("Agenda", Theme.Semi(14f)) + 10, top + 3, w - 200, StringAlignment.Near);
 
@@ -248,7 +248,7 @@ namespace Gili
             if (agenda.Count == 0)
             {
                 DrawCalendarIcon(w / 2, listTop + 34, 22, Theme.Faint);
-                paint.TextCenter("Tambahkan rapat supaya Gili mengingatkanmu", Theme.Ui(12f), Theme.Sub, w / 2, listTop + 66);
+                paint.TextCenter("Add a meeting and Gili will remind you", Theme.Ui(12f), Theme.Sub, w / 2, listTop + 66);
             }
             var state = g.Save();
             g.SetClip(area, CombineMode.Intersect);
