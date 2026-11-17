@@ -71,7 +71,7 @@ namespace Gili
                     var e = ShowFeed(View.Device, 3.2, "usbIn", "USB drive connected", "DATA (E:)", true);
                     if (e != null) e.Path = null; // demo: no real drive to open
                 }),
-                Step(3000, delegate { ShowFeed(View.Device, 2.8, "monIn", "Monitor connected", "2 layar", false); }),
+                Step(3000, delegate { ShowFeed(View.Device, 2.8, "monIn", "Monitor connected", "2 displays", false); }),
                 Step(3000, delegate { ShowFeed(View.Saver, 2.8, "on", "Battery saver enabled", "Background activity is reduced", false); }),
                 Step(10, delegate { DismissToast(); demoEyes = true; lastLivelyUtc = DateTime.UtcNow.AddMinutes(-1); }), // let the eyes take over
                 Step(3000, delegate { SetMood(Mood.Neutral, 2.9); Kick(); }),
