@@ -5,7 +5,7 @@ using WinTimer = System.Windows.Forms.Timer;
 namespace Gili
 {
     /// <summary>
-    /// "Sembunyi otomatis": the island collapses into a thin click-through line so it never covers browser
+    /// "Auto-hide": the island collapses into a thin click-through line so it never covers browser
     /// tabs. Holding the pointer against the top edge (near the centre) for a moment brings it back.
     /// </summary>
     partial class IslandForm
@@ -103,12 +103,11 @@ namespace Gili
             }
         }
 
-        /// <summary>The hint line quietly shows what is going on: timer, music or an upcoming prayer.</summary>
+        /// <summary>The hint line quietly reflects active timer or music activity.</summary>
         Color HintColor()
         {
             if (pomo.Running) return PomoColor(pomo.Mode);
             if (mediaInfo.Playing) return mediaInfo.Accent;
-            if (PrayerSoon()) return Theme.Prayer;
             return Theme.Hint;
         }
 
