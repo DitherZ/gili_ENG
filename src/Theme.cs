@@ -25,10 +25,9 @@ namespace Gili
             if (name == "hitam") name = "dark";
             if (name == "adaptif") name = "adaptive";
             if (name == "terang") name = "light";
-            if (name == "windows") name = "windows";
-            if (name == "kaca") name = "glass";
+                        if (name == "kaca") name = "glass";
             IsLight = name == "light";
-            IsGlass = name == "kaca";
+            IsGlass = name == "glass";
             Ink = Color.FromArgb(255, 22, 22, 24);
             Green = Color.FromArgb(255, 52, 211, 120);
             Orange = Color.FromArgb(255, 255, 159, 10);
@@ -67,7 +66,7 @@ namespace Gili
             FillHover = Color.FromArgb(58, 255, 255, 255);
             Hint = Color.FromArgb(150, 235, 235, 245);
 
-            if (name == "aksen")
+            if (name == "windows")
             {
                 Color accent = WindowsAccent();
                 double h, s, l;
