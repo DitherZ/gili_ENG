@@ -484,16 +484,16 @@ namespace Gili
         {
             if (!NotifEnabled)
             {
-                paint.TextCenter("Notifikasi dimatikan", Theme.Semi(13.5f), Theme.Sub, w / 2, 110);
-                paint.TextCenter("Nyalakan di tab Pengaturan", Theme.Ui(11.5f), Theme.Faint, w / 2, 132);
+                paint.TextCenter("Notifications are disabled", Theme.Semi(13.5f), Theme.Sub, w / 2, 110);
+                paint.TextCenter("Enable notifications in Settings", Theme.Ui(11.5f), Theme.Faint, w / 2, 132);
                 return;
             }
             if (notifAccess != UserNotificationListenerAccessStatus.Allowed)
             {
                 paint.Icon(Theme.IconBellOff, 24, Theme.Faint, w / 2, 92);
-                paint.TextCenter("Gili belum diizinkan membaca notifikasi", Theme.Semi(13.5f), Theme.Sub, w / 2, 126);
-                paint.TextCenter("Pengaturan Windows > Privasi > Notifikasi", Theme.Ui(11.5f), Theme.Faint, w / 2, 148);
-                PillButton(new RectangleF(w / 2 - 80, 168, 160, 30), "notifPerm", "Buka pengaturan", Theme.Fill, Theme.Text, delegate
+                paint.TextCenter("Gili does not have permission to read notifications", Theme.Semi(13.5f), Theme.Sub, w / 2, 126);
+                paint.TextCenter("Windows Settings > Privacy > Notifications", Theme.Ui(11.5f), Theme.Faint, w / 2, 148);
+                PillButton(new RectangleF(w / 2 - 80, 168, 160, 30), "notifPerm", "Open settings", Theme.Fill, Theme.Text, delegate
                 {
                     try { Process.Start("ms-settings:privacy-notifications"); }
                     catch (Exception ex) { Log.Write("notif settings: " + ex.Message); }
@@ -505,15 +505,15 @@ namespace Gili
             if (notifs.Count == 0)
             {
                 paint.Icon(quiet ? Theme.IconBellOff : Theme.IconBell, 24, Theme.Faint, w / 2, 96);
-                paint.TextCenter("Belum ada pesan", Theme.Semi(14f), Theme.Sub, w / 2, 130);
-                paint.TextCenter(NotifAllApps ? "Notifikasi dari semua aplikasi muncul di sini"
-                                               : "Pesan WhatsApp, Telegram, Teams, email, dan lainnya muncul di sini",
+                paint.TextCenter("No messages yet", Theme.Semi(14f), Theme.Sub, w / 2, 130);
+                paint.TextCenter(NotifAllApps ? "Notifications from all apps appear here"
+                                               : "Messages from WhatsApp, Telegram, Teams, email and other apps appear here",
                                  Theme.Ui(11.5f), Theme.Faint, w / 2, 152);
-                if (quiet) paint.TextCenter("Jangan ganggu Windows sedang aktif", Theme.Ui(11.5f), Theme.Orange, w / 2, 176);
+                if (quiet) paint.TextCenter("Windows Do Not Disturb is active", Theme.Ui(11.5f), Theme.Orange, w / 2, 176);
                 return;
             }
 
-            string head = "Notifikasi · " + notifs.Count;
+            string head = "Notifications · " + notifs.Count;
             paint.Text(head, Theme.Ui(11.5f), Theme.Sub, 20, 54);
             if (quiet)
             {
@@ -523,7 +523,7 @@ namespace Gili
             }
             var clear = new RectangleF(w - 18 - 92, 43, 92, 22);
             if (Hover("notifClear")) paint.FillRound(clear, 11, Theme.Fill);
-            paint.TextCenter("Hapus semua", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
+            paint.TextCenter("Clear all", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
             AddHit(clear, "notifClear", delegate { notifScroll.Snap(0); RemoveNotifs(new List<NotifItem>(notifs)); });
 
             const float top = 70, rowH = 46;
