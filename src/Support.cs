@@ -61,6 +61,16 @@ namespace Gili
                 values.Remove("prayer.ihtiyat");
                 values.Remove("hijri.adjust");
                 values.Remove("bmkg.adm4");
+                string legacyTheme;
+                if (values.TryGetValue("theme", out legacyTheme))
+                {
+                    if (legacyTheme == "hitam") values["theme"] = "dark";
+                    else if (legacyTheme == "adaptif") values["theme"] = "adaptive";
+                    else if (legacyTheme == "terang") values["theme"] = "light";
+                    else if (legacyTheme == "aksen") values["theme"] = "windows";
+                    else if (legacyTheme == "kaca") values["theme"] = "glass";
+                    else if (legacyTheme == "ramadan") values["theme"] = "dark";
+                }
             }
             catch (Exception ex) { Log.Write("settings load: " + ex.Message); }
         }
