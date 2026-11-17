@@ -70,7 +70,6 @@ namespace Gili
         string[] micApps = new string[0], camApps = new string[0];
         bool fullscreen;
         bool locating;
-        DateTime lastLocateUtc = DateTime.MinValue;
         Toast toast;
         DateTime volumeHudUntil;
         DateTime glowStart, glowUntil;
@@ -1030,7 +1029,6 @@ namespace Gili
         {
             if (locating) return;
             locating = true;
-            lastLocateUtc = DateTime.UtcNow;
             Kick();
             ThreadPool.QueueUserWorkItem(delegate
             {
@@ -1049,7 +1047,6 @@ namespace Gili
                     settings.Set("city", r.City);
                     nextWeatherUtc = DateTime.MinValue;
                     settings.Save();
-                    if (!settings.Has("lat") || !settings.Has("lon")) DetectLocation(false);
                     if (announce) ShowInfo(Theme.IconPin, Theme.Green, "Weather location updated", r.City);
                     Kick();
                 });
