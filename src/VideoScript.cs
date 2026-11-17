@@ -150,7 +150,7 @@ namespace Gili
                 {
                     DismissToast();
                     using (var bmp = SampleImage()) bmp.Save(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vacation-photo.png"), ImageFormat.Png);
-                    AddToShelf(new[] { System.IO.Path.Combine(System.IO.Path.GetTempPath(), "foto-liburan.png"), @"C:\Windows\win.ini", @"C:\Windows" });
+                    AddToShelf(new[] { System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vacation-photo.png"), @"C:\Windows\win.ini", @"C:\Windows" });
                     Expand(ShelfPage);
                 })),
                 Step(1100, Cue("System activity", "power · Wi-Fi · devices · brightness", delegate
