@@ -67,7 +67,7 @@ namespace Gili
             {
                 Directory.CreateDirectory(Dir);
                 var sb = new StringBuilder();
-                sb.AppendLine("# Gili settings. lat/lon/city = prayer location (edit, then tray > Muat ulang pengaturan).");
+                sb.AppendLine("# Gili settings. lat/lon/city define the weather location. Edit this file and reload settings from the tray menu.");
                 var keys = new List<string>(values.Keys);
                 keys.Sort(StringComparer.OrdinalIgnoreCase);
                 foreach (var k in keys) sb.AppendLine(k + "=" + values[k]);
@@ -300,7 +300,6 @@ namespace Gili
         static SoundPlayer player; // keeps the buffer alive while it plays
 
         public static void FocusDone() { Play(new[] { 659.25, 830.61, 987.77, 1318.51 }, 0.13, 3.2, 0.55); }
-        public static void Adzan() { Play(new[] { 587.33, 880.0, 1174.66 }, 0.32, 1.8, 0.5); }
         public static void Meeting() { Play(new[] { 783.99, 1046.5, 783.99, 1046.5 }, 0.16, 4.0, 0.5); }
 
         static void Play(double[] notes, double spacing, double decay, double volume)
