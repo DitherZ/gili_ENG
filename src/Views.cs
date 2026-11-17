@@ -487,7 +487,7 @@ namespace Gili
         {
             var current = CurrentWeather();
             paint.Icon(Theme.IconPin, 20, Theme.Sub, 28, 78);
-            string place = weather != null && weather.Place.Length > 0 ? weather.Place : settings.Get("city", "Location not set");
+            string place = weather != null && weather.Place.Length > 0 ? weather.Place : locating ? "Detecting location..." : settings.Get("city", "Location not set");
             paint.Text(place, Theme.Semi(15f), Theme.Text, 48, 78, w - 66, StringAlignment.Near);
             if (current == null)
             {
