@@ -25,6 +25,7 @@ namespace Gili
             if (name == "hitam") name = "dark";
             if (name == "adaptif") name = "adaptive";
             if (name == "terang") name = "light";
+            if (name == "aksen") name = "windows";
                         if (name == "kaca") name = "glass";
             IsLight = name == "light";
             IsGlass = name == "glass";
