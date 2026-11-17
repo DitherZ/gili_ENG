@@ -59,26 +59,26 @@ namespace Gili
             const float labelX = 18, controlX = 132;
             float y = 62;
 
-            SettingLabel("Tampilan", labelX, y, true);
-            Segmented("display", controlX, y, new[] { "Selalu tampil", "Sembunyi otomatis" }, AutoHide ? 1 : 0, true,
+            SettingLabel("Display", labelX, y, true);
+            Segmented("display", controlX, y, new[] { "Always visible", "Auto-hide" }, AutoHide ? 1 : 0, true,
                       i => SetSetting("display", i == 1 ? "auto" : "always"));
 
             y += 38;
             int delayIndex = 0;
             for (int i = 0; i < RevealDelays.Length; i++)
                 if (Math.Abs(RevealDelays[i] - RevealDelayMs) < Math.Abs(RevealDelays[delayIndex] - RevealDelayMs)) delayIndex = i;
-            SettingLabel("Muncul setelah", labelX, y, AutoHide);
-            Segmented("delay", controlX, y, new[] { "0,5 dtk", "1 dtk", "2 dtk", "3 dtk" }, delayIndex, AutoHide,
+            SettingLabel("Reveal delay", labelX, y, AutoHide);
+            Segmented("delay", controlX, y, new[] { "0.5 sec", "1 sec", "2 sec", "3 sec" }, delayIndex, AutoHide,
                       i => SetSetting("revealDelay", RevealDelays[i]));
 
             y += 38;
-            SettingLabel("Buka panel", labelX, y, true);
-            Segmented("open", controlX, y, new[] { "Arahkan mouse", "Klik" }, settings.Get("open", "hover") == "click" ? 1 : 0, true,
+            SettingLabel("Open panel", labelX, y, true);
+            Segmented("open", controlX, y, new[] { "Hover", "Click" }, settings.Get("open", "hover") == "click" ? 1 : 0, true,
                       i => SetSetting("open", i == 1 ? "click" : "hover"));
 
             y += 38;
-            SettingLabel("Tema", labelX, y, true);
-            string theme = settings.Get("theme", "hitam");
+            SettingLabel("Theme", labelX, y, true);
+            string theme = settings.Get("theme", "dark");
             int themeIndex = Math.Max(0, Array.IndexOf(Theme.Names, theme));
             for (int i = 0; i < Theme.Names.Length; i++)
             {
@@ -94,38 +94,36 @@ namespace Gili
             paint.Text(Theme.Labels[themeIndex], Theme.Ui(12f), Theme.Sub, controlX + Theme.Names.Length * 30 + 6, y);
 
             y += 38;
-            SettingLabel("Bentuk", labelX, y, true);
-            float end = Segmented("shape", controlX, y, new[] { "Melayang", "Notch" }, Notch ? 1 : 0, true,
+            SettingLabel("Shape", labelX, y, true);
+            float end = Segmented("shape", controlX, y, new[] { "Floating", "Notch" }, Notch ? 1 : 0, true,
                                   i => SetSetting("shape", i == 1 ? "notch" : "float"));
-            SettingLabel("Ukuran", end + 18, y, true);
+            SettingLabel("Size", end + 18, y, true);
             string size = settings.Get("size", "m");
-            Segmented("size", end + 18 + paint.Measure("Ukuran", Theme.Ui(12f)) + 10, y, new[] { "S", "M", "L" },
+            Segmented("size", end + 18 + paint.Measure("Size", Theme.Ui(12f)) + 10, y, new[] { "S", "M", "L" },
                       size == "s" ? 0 : size == "l" ? 2 : 1, true, i => SetSetting("size", i == 0 ? "s" : i == 2 ? "l" : "m"));
 
             y += 42;
             float x = labelX;
             x = Toggle("tgViz", x, y, "Visualizer", settings.GetBool("visualizer", true),
                        delegate { SetSetting("visualizer", !settings.GetBool("visualizer", true)); });
-            x = Toggle("tgLyrics", x + 6, y, "Lirik", LyricsEnabled, delegate { SetSetting("lyrics", !LyricsEnabled); });
-            x = Toggle("tgAdzan", x + 6, y, "Adzan", settings.GetBool("prayer.notify", true),
-                       delegate { SetSetting("prayer.notify", !settings.GetBool("prayer.notify", true)); });
-            Toggle("tgHint", x + 6, y, "Garis petunjuk", settings.GetBool("hintLine", true),
+            x = Toggle("tgLyrics", x + 6, y, "Lyrics", LyricsEnabled, delegate { SetSetting("lyrics", !LyricsEnabled); });
+            Toggle("tgHint", x + 6, y, "Hint line", settings.GetBool("hintLine", true),
                    delegate { SetSetting("hintLine", !settings.GetBool("hintLine", true)); });
             y += 34;
-            x = Toggle("tgAuto", labelX, y, "Mulai bersama Windows", autoStartCached, delegate
+            x = Toggle("tgAuto", labelX, y, "Start with Windows", autoStartCached, delegate
             {
                 try { AutoStart.Enabled = !autoStartCached; }
                 catch (Exception ex) { Log.Write("autostart: " + ex.Message); }
                 RefreshAutoStart();
                 Kick();
             });
-            x = Toggle("tgWeather", x + 6, y, "Cuaca", WeatherEnabled, delegate { SetSetting("weather", !WeatherEnabled); });
+            x = Toggle("tgWeather", x + 6, y, "Weather", WeatherEnabled, delegate { SetSetting("weather", !WeatherEnabled); });
             x = Toggle("tgClip", x + 6, y, "Clipboard", ClipboardEnabled, delegate { SetSetting("clipboard", !ClipboardEnabled); });
-            Toggle("tgMascot", x + 6, y, "Maskot", MascotEnabled, delegate { SetSetting("mascot", !MascotEnabled); });
+            Toggle("tgMascot", x + 6, y, "Mascot", MascotEnabled, delegate { SetSetting("mascot", !MascotEnabled); });
             y += 34;
-            x = Toggle("tgNotif", labelX, y, "Notifikasi pesan", NotifEnabled, delegate { SetSetting("notif", !NotifEnabled); });
-            x = Toggle("tgNotifText", x + 6, y, "Tampilkan isi", NotifContent, delegate { SetSetting("notif.content", !NotifContent); });
-            Toggle("tgNotifAll", x + 6, y, "Semua aplikasi", NotifAllApps, delegate { SetSetting("notif.all", !NotifAllApps); });
+            x = Toggle("tgNotif", labelX, y, "Message notifications", NotifEnabled, delegate { SetSetting("notif", !NotifEnabled); });
+            x = Toggle("tgNotifText", x + 6, y, "Show content", NotifContent, delegate { SetSetting("notif.content", !NotifContent); });
+            Toggle("tgNotifAll", x + 6, y, "All apps", NotifAllApps, delegate { SetSetting("notif.all", !NotifAllApps); });
         }
 
         void SettingLabel(string text, float x, float cy, bool enabled)
@@ -167,7 +165,7 @@ namespace Gili
             var font = Theme.Semi(11.5f);
             float width = paint.Measure(label, font) + 34;
             var r = new RectangleF(x, cy - 14, width, 28);
-            Color accent = Theme.Prayer;
+            Color accent = Theme.Green;
             paint.FillRound(r, 14, on ? Theme.WithAlpha(accent, 0.2f) : Hover(id) ? Theme.FillHover : Theme.Fill);
             if (on) paint.FillCircle(r.X + 14, cy, 4f, accent);
             else paint.G.DrawEllipse(paint.P(Theme.Sub, 1.3f), r.X + 10, cy - 4, 8, 8);
@@ -181,31 +179,31 @@ namespace Gili
             var rect = new RectangleF(cx - radius, cy - radius, radius * 2, radius * 2);
             switch (Theme.Names[index])
             {
-                case "hitam":
+                case "dark":
                     paint.FillCircle(cx, cy, radius, Color.Black);
                     paint.G.DrawEllipse(paint.P(Color.FromArgb(90, 255, 255, 255), 1f), rect);
                     break;
-                case "adaptif":
+                case "adaptive":
                     paint.G.FillPie(paint.B(Color.FromArgb(255, 236, 72, 153)), rect.X, rect.Y, rect.Width, rect.Height, 90, 120);
                     paint.G.FillPie(paint.B(Color.FromArgb(255, 59, 130, 246)), rect.X, rect.Y, rect.Width, rect.Height, 210, 120);
                     paint.G.FillPie(paint.B(Color.FromArgb(255, 250, 204, 21)), rect.X, rect.Y, rect.Width, rect.Height, 330, 120);
                     break;
-                case "terang":
+                case "light":
                     paint.FillCircle(cx, cy, radius, Color.FromArgb(255, 246, 246, 248));
                     paint.G.DrawEllipse(paint.P(Color.FromArgb(70, 0, 0, 0), 1f), rect);
                     break;
-                case "aksen":
+                case "windows":
                     paint.FillCircle(cx, cy, radius, windowsAccentCached);
                     break;
-                case "kaca":
+                case "glass":
                     using (var lg = new System.Drawing.Drawing2D.LinearGradientBrush(rect, Color.FromArgb((int)(230 * paint.Alpha), 190, 220, 255),
                                                                                      Color.FromArgb((int)(150 * paint.Alpha), 120, 140, 200), 45f))
                         paint.G.FillEllipse(lg, rect);
                     paint.G.DrawArc(paint.P(Color.FromArgb(230, 255, 255, 255), 1.4f), RectangleF.Inflate(rect, -2.5f, -2.5f), 200, 110);
                     break;
                 default:
-                    paint.FillCircle(cx, cy, radius, Color.FromArgb(255, 10, 36, 27));
-                    paint.FillCircle(cx + 2.5f, cy - 1.5f, radius * 0.42f, Color.FromArgb(255, 233, 196, 106));
+                    paint.FillCircle(cx, cy, radius, Color.FromArgb(255, 30, 30, 38));
+                    paint.FillCircle(cx + 2.5f, cy - 1.5f, radius * 0.42f, Color.FromArgb(255, 190, 220, 255));
                     break;
             }
         }
