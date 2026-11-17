@@ -91,7 +91,7 @@ namespace Gili
                 {
                     expanded = false;
                     VideoMedia(false); // compact music view, so the unread badge has a place
-                    DumpCue("@fly", "0|Budi Santoso|Nanti jadi rapat jam 3? Saya bawa laporannya");
+                    DumpCue("@fly", "0|Alex Morgan|Are we still on for the 3 PM meeting? I have the report.");
                 })),
                 Step(1500, delegate
                 {
@@ -99,7 +99,7 @@ namespace Gili
                     var t = ShowToast(View.Notif, 1.5, 2, true);
                     if (t != null) { t.Data = sampleNotifs[1]; notifBurst = 1; }
                     Pulse(AppColor(sampleNotifs[1]), 1.0);
-                    DumpCue("@fly", "450|Tim Operasional|Sari: unit 12 sudah kembali ke pool");
+                    DumpCue("@fly", "450|Operations Team|Sam: vehicle 12 has returned to the depot");
                 }),
                 Step(1500, delegate
                 {
@@ -178,9 +178,8 @@ namespace Gili
                     SetSetting("theme", "adaptive"); Expand(0);
                 })),
                 Step(900, delegate { SetSetting("theme", "light"); }),
-                Step(900, delegate {  }),
-                Step(1300, delegate { SetSetting("theme", "glass"); }),
-                Step(1500, Cue("Notch shape", "attaches to the top edge of the screen", delegate { expanded = false; SetSetting("theme", "hitam"); SetSetting("shape", "notch"); })),
+                                Step(1300, delegate { SetSetting("theme", "glass"); }),
+                Step(1500, Cue("Notch shape", "attaches to the top edge of the screen", delegate { expanded = false; SetSetting("theme", "dark"); SetSetting("shape", "notch"); })),
                 Step(1000, Cue("Auto-hide mode", "keeps browser tabs unobstructed", delegate { SetSetting("shape", "float"); SetSetting("display", "auto"); revealed = false; Kick(); })),
                 Step(500, delegate { dwellProgress = 0.6f; Kick(); }),
                 Step(1000, delegate { dwellProgress = 0; Reveal(); }),
