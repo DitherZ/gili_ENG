@@ -204,7 +204,7 @@ namespace Gili
             CheckFullscreen();
 
             int hour = DateTime.Now.Hour;
-            string greeting = hour < 11 ? "Selamat pagi" : hour < 15 ? "Selamat siang" : hour < 18 ? "Selamat sore" : "Selamat malam";
+            string greeting = hour < 11 ? "Good morning" : hour < 15 ? "Good afternoon" : hour < 18 ? "Good evening" : "Good evening";
             UpdateEdgeWatch();
             StartClipboard();
             StartNotifications();
