@@ -245,7 +245,7 @@ namespace Gili
             var r = new RectangleF(w - 18 - 62, 46, 62, 24);
             Color accent = mediaInfo.Accent;
             paint.FillRound(r, 12, on ? Theme.WithAlpha(accent, 0.24f) : Hover("lyrToggle") ? Theme.FillHover : Theme.Fill);
-            paint.TextCenter("Lirik", Theme.Semi(11.5f), on ? accent : Theme.Sub, r.X + r.Width / 2, r.Y + 12);
+            paint.TextCenter("Lyrics", Theme.Semi(11.5f), on ? accent : Theme.Sub, r.X + r.Width / 2, r.Y + 12);
             AddHit(r, "lyrToggle", delegate { SetSetting("lyricsPanel", !LyricsPanel); });
         }
     }
