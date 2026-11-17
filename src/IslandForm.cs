@@ -635,7 +635,7 @@ namespace Gili
         /// <summary>Theme background; the adaptive theme tints it with the artwork colour while music shows.</summary>
         Color TargetBg()
         {
-            if (settings.Get("theme", "hitam") != "adaptif" || !mediaInfo.Present) return Theme.Bg;
+            if (settings.Get("theme", "dark") != "adaptive" || !mediaInfo.Present) return Theme.Bg;
             bool musicOnScreen = current == View.Media || current == View.Lyric || current == View.Track || (current == View.Expanded && page == 0);
             return musicOnScreen ? Theme.Tint(mediaInfo.Accent) : Theme.Bg;
         }
@@ -1040,7 +1040,7 @@ namespace Gili
                     locating = false;
                     if (r == null)
                     {
-                        if (announce) ShowInfo(Theme.IconPin, Theme.Red, "Lokasi gagal dideteksi", "cek internet");
+                        if (announce) ShowInfo(Theme.IconPin, Theme.Red, "Unable to detect location", "Check your internet connection");
                         Kick();
                         return;
                     }
