@@ -6,7 +6,7 @@ Gili is a native Windows Dynamic Island-style desktop companion. This fork remov
 
 ## What changed in this fork
 
-- All user-facing application text, menus, dialogs, settings, notifications, demo content and documentation are being converted to English.
+- All user-facing application text, menus, dialogs, settings, notifications, demo content and documentation are in English.
 - Removed prayer schedules, adzan/imsak reminders, religious calendar calculations, Ramadan behaviour and the religious theme.
 - Removed BMKG and Indonesian administrative-region lookup dependencies.
 - Replaced BMKG forecasts with [Open-Meteo](https://open-meteo.com/) using latitude and longitude.
