@@ -73,7 +73,7 @@ namespace Gili
             catch { }
         }
 
-        bool GlassTheme { get { string theme = settings.Get("theme", "dark"); return theme == "glass" || theme == "kaca"; } }
+        bool GlassTheme { get { return settings.Get("theme", "dark") == "glass"; } }
         bool GlassActive { get { return GlassTheme && glassExcluded; } }
 
         void UpdateGlass()
