@@ -498,7 +498,7 @@ namespace Gili
             paint.Text(Math.Round(current.TempC) + "°", Theme.Semi(34f), Theme.Text, 100, 128);
             paint.Text(current.Desc, Theme.Ui(13f), Theme.Sub, 102, 151);
             paint.Text("Humidity  " + current.Humidity + "%", Theme.Ui(12f), Theme.Sub, 48, 190);
-            paint.Text("Forecast by Open-Meteo", Theme.Ui(10.5f), Theme.Faint, w - 18, 190, 0, StringAlignment.Far);
+            paint.TextRight("Forecast by Open-Meteo", Theme.Ui(10.5f), Theme.Faint, w - 18, 190);
         }
 
         static int PageHeight(int p)
