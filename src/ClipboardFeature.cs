@@ -30,7 +30,7 @@ namespace Gili
         {
             get
             {
-                if (Kind == ClipKind.Image) return "Gambar " + ImageSize.Width + "×" + ImageSize.Height;
+                if (Kind == ClipKind.Image) return "Image " + ImageSize.Width + "×" + ImageSize.Height;
                 if (Kind == ClipKind.Files)
                 {
                     var f = Files;
@@ -222,7 +222,7 @@ namespace Gili
                 string target = Path.Combine(dir, "Gili " + item.Time.ToString("yyyy-MM-dd HHmmss") + ".png");
                 File.Copy(item.ImagePath, target, true);
                 DismissToast();
-                ShowInfo(Theme.IconPin, Theme.Green, "Disimpan", "Gambar\\Screenshots", true);
+                ShowInfo(Theme.IconPin, Theme.Green, "Saved", "Pictures\\Screenshots", true);
             }
             catch (Exception ex) { Log.Write("save clip: " + ex.Message); }
         }
@@ -281,7 +281,7 @@ namespace Gili
                 return;
             }
             DrawClipBadge(item, new RectangleF(9, 8, 28, 28));
-            string title = item.Kind == ClipKind.Files ? (item.Files.Length == 1 ? "File disalin" : item.Files.Length + " file disalin") : "Teks disalin";
+            string title = item.Kind == ClipKind.Files ? (item.Files.Length == 1 ? "File copied" : item.Files.Length + " files copied") : "Text copied";
             paint.Text(title, Theme.Semi(12.5f), Theme.Text, 46, 15);
             paint.Text(item.Preview, Theme.Ui(11.5f), Theme.Sub, 46, 30, w - 46 - 16, StringAlignment.Near);
         }
@@ -302,7 +302,7 @@ namespace Gili
                 return;
             }
 
-            paint.Text("Riwayat salin · " + clips.Count, Theme.Ui(11.5f), Theme.Sub, 20, 54);
+            paint.Text("Clipboard history · " + clips.Count, Theme.Ui(11.5f), Theme.Sub, 20, 54);
             var clear = new RectangleF(w - 18 - 92, 43, 92, 22);
             if (Hover("clipClear")) paint.FillRound(clear, 11, Theme.Fill);
             paint.TextCenter("Clear all", Theme.Ui(11.5f), Theme.Sub, clear.X + clear.Width / 2, clear.Y + 11);
