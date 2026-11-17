@@ -57,6 +57,10 @@ namespace Gili
                     int eq = line.IndexOf('=');
                     if (eq > 0) values[line.Substring(0, eq).Trim()] = line.Substring(eq + 1).Trim();
                 }
+                values.Remove("prayer.notify");
+                values.Remove("prayer.ihtiyat");
+                values.Remove("hijri.adjust");
+                values.Remove("bmkg.adm4");
             }
             catch (Exception ex) { Log.Write("settings load: " + ex.Message); }
         }
