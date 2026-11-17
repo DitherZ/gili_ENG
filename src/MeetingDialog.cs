@@ -47,7 +47,7 @@ namespace Gili
             time.Bounds = new Rectangle(220, y, 182, 28); time.Value = DateTime.Today + meeting.Start.TimeOfDay;
             Controls.Add(date); Controls.Add(time); y += 44;
 
-            AddLabel("Durasi", y); AddLabel("Ingatkan", y, 220); y += 25;
+            AddLabel("Duration", y); AddLabel("Remind me", y, 220); y += 25;
             Combo(duration, new Rectangle(18, y, 190, 28));
             foreach (var d in Durations) duration.Items.Add(d < 60 ? d + " min" : d % 60 == 0 ? d / 60 + " hr" : (d / 60) + " hr " + (d % 60) + " min");
             duration.SelectedIndex = Math.Max(0, Array.IndexOf(Durations, meeting.DurationMin));
@@ -58,7 +58,7 @@ namespace Gili
             if (Array.IndexOf(Reminders, meeting.RemindMin) < 0) remind.SelectedIndex = 1;
             y += 44;
 
-            AddLabel("Ulangi", y); y += 25;
+            AddLabel("Repeat", y); y += 25;
             Combo(repeat, new Rectangle(18, y, 384, 28));
             repeat.Items.AddRange(Meeting.RepeatLabels);
             repeat.SelectedIndex = Math.Max(0, Array.IndexOf(Meeting.RepeatKeys, meeting.Repeat));
