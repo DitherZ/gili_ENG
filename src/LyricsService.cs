@@ -271,7 +271,7 @@ namespace Gili
         }
 
         static readonly Regex Noise = new Regex(
-            @"official|video|audio|lyric|lirik|\bmv\b|m/v|\bhd\b|\b4k\b|visuali[sz]er|music video|video clip|remaster|explicit|full album|live session",
+            @"official|video|audio|lyric|\bmv\b|m/v|\bhd\b|\b4k\b|visuali[sz]er|music video|video clip|remaster|explicit|full album|live session",
             RegexOptions.IgnoreCase);
 
         /// <summary>
