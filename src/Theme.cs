@@ -11,18 +11,23 @@ namespace Gili
     {
         // The palette is swapped by Apply(); everything reads these fields at draw time.
         public static Color Bg, Text, Sub, Faint, Fill, FillHover, Ink, Hint;
-        public static Color Green, Orange, Red, Focus, Break, LongBreak, Prayer, DefaultAccent;
+        public static Color Green, Orange, Red, Focus, Break, LongBreak, DefaultAccent;
         public static int ShadowAlpha;
         public static bool IsLight, IsGlass;
 
-        public static readonly string[] Names = { "hitam", "adaptif", "terang", "aksen", "ramadan", "kaca" };
-        public static readonly string[] Labels = { "Hitam", "Adaptif", "Terang", "Aksen Windows", "Ramadan", "Liquid Glass" };
+        public static readonly string[] Names = { "dark", "adaptive", "light", "windows", "glass" };
+        public static readonly string[] Labels = { "Dark", "Adaptive", "Light", "Windows accent", "Liquid Glass" };
 
-        static Theme() { Apply("hitam"); }
+        static Theme() { Apply("dark"); }
 
         public static void Apply(string name)
         {
-            IsLight = name == "terang";
+            if (name == "hitam") name = "dark";
+            if (name == "adaptif") name = "adaptive";
+            if (name == "terang") name = "light";
+            if (name == "windows") name = "windows";
+            if (name == "kaca") name = "glass";
+            IsLight = name == "light";
             IsGlass = name == "kaca";
             Ink = Color.FromArgb(255, 22, 22, 24);
             Green = Color.FromArgb(255, 52, 211, 120);
@@ -31,7 +36,6 @@ namespace Gili
             Focus = Color.FromArgb(255, 255, 122, 89);
             Break = Color.FromArgb(255, 48, 209, 140);
             LongBreak = Color.FromArgb(255, 90, 176, 255);
-            Prayer = Color.FromArgb(255, 72, 220, 170);
             DefaultAccent = Color.FromArgb(255, 170, 150, 255);
             ShadowAlpha = 24;
 
@@ -50,7 +54,6 @@ namespace Gili
                 Focus = Color.FromArgb(255, 234, 88, 52);
                 Break = Color.FromArgb(255, 16, 160, 100);
                 LongBreak = Color.FromArgb(255, 37, 120, 220);
-                Prayer = Color.FromArgb(255, 13, 148, 110);
                 DefaultAccent = Color.FromArgb(255, 110, 86, 230);
                 ShadowAlpha = 34;
                 return;
@@ -72,7 +75,7 @@ namespace Gili
                 Bg = HslToColor(h, Math.Min(s, 0.55) * 0.8, 0.13);
                 DefaultAccent = HslToColor(h, Math.Max(s, 0.6), 0.68);
             }
-            else if (name == "kaca")
+            else if (name == "glass")
             {
                 // The glass itself is drawn from the backdrop; Bg is only the fallback for the bubble neck.
                 Bg = Color.FromArgb(255, 30, 30, 38);
@@ -81,18 +84,6 @@ namespace Gili
                 Fill = Color.FromArgb(44, 255, 255, 255);
                 FillHover = Color.FromArgb(72, 255, 255, 255);
                 ShadowAlpha = 14;
-            }
-            else if (name == "ramadan")
-            {
-                Bg = Color.FromArgb(255, 10, 36, 27);
-                Text = Color.FromArgb(255, 255, 247, 230);
-                Sub = Color.FromArgb(165, 240, 228, 200);
-                Faint = Color.FromArgb(90, 240, 228, 200);
-                Fill = Color.FromArgb(34, 233, 196, 106);
-                FillHover = Color.FromArgb(58, 233, 196, 106);
-                Hint = Color.FromArgb(170, 233, 196, 106);
-                Prayer = Color.FromArgb(255, 233, 196, 106);
-                DefaultAccent = Prayer;
             }
         }
 
