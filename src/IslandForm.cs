@@ -219,7 +219,7 @@ namespace Gili
             MaybeRefreshWeather();
             var t = ShowToast(View.Info, 2.6, 1, false, true);
             t.Glyph = hour >= 6 && hour < 18 ? Theme.IconSun : Theme.IconMoon;
-            t.Color = hour >= 6 && hour < 18 ? Theme.Orange : Theme.Prayer;
+            t.Color = hour >= 6 && hour < 18 ? Theme.Orange : Theme.Green;
             t.Title = greeting;
             t.Detail = ClockText();
 
@@ -1063,7 +1063,7 @@ namespace Gili
                     ts.Detail = Hm(t);
                 }
                 Chime.Adzan();
-                Pulse(Theme.Prayer, 4);
+                Pulse(Theme.Green, 4);
             }
         }
 
@@ -1104,7 +1104,7 @@ namespace Gili
                     nextWeatherUtc = DateTime.MinValue;
                     settings.Save();
                     SetupPrayers();
-                    if (announce) ShowInfo(Theme.IconPin, Theme.Prayer, "Lokasi sholat", r.City);
+                    if (announce) ShowInfo(Theme.IconPin, Theme.Green, "Weather location updated", r.City);
                     Kick();
                 });
             });
