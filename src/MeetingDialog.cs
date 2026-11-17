@@ -41,7 +41,7 @@ namespace Gili
             Style(title, y); title.Text = meeting.Title; y += 40;
 
             AddLabel("Date", y); AddLabel("Start time", y, 220); y += 25;
-            date.Format = DateTimePickerFormat.Custom; date.CustomFormat = "ddd, dd MMM yyyy";
+            date.Format = DateTimePickerFormat.Custom; date.CustomFormat = "yyyy-MM-dd";
             date.Bounds = new Rectangle(18, y, 190, 28); date.Value = meeting.Start.Date;
             time.Format = DateTimePickerFormat.Custom; time.CustomFormat = "HH:mm"; time.ShowUpDown = true;
             time.Bounds = new Rectangle(220, y, 182, 28); time.Value = DateTime.Today + meeting.Start.TimeOfDay;
