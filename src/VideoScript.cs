@@ -149,11 +149,11 @@ namespace Gili
                 Step(2100, Cue("File shelf", "drop files in, then drag them anywhere", delegate
                 {
                     DismissToast();
-                    using (var bmp = SampleImage()) bmp.Save(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "foto-liburan.png"), ImageFormat.Png);
+                    using (var bmp = SampleImage()) bmp.Save(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vacation-photo.png"), ImageFormat.Png);
                     AddToShelf(new[] { System.IO.Path.Combine(System.IO.Path.GetTempPath(), "foto-liburan.png"), @"C:\Windows\win.ini", @"C:\Windows" });
                     Expand(ShelfPage);
                 })),
-                Step(1100, Cue("Animasi sistem", "power · Wi-Fi · devices · brightness", delegate
+                Step(1100, Cue("System activity", "power · Wi-Fi · devices · brightness", delegate
                 {
                     expanded = false;
                     var t = ShowToast(View.Charge, 1.1, 2, false);
