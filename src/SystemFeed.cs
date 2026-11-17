@@ -71,7 +71,7 @@ namespace Gili
             if (s.Kind == NetKind.None)
             {
                 if (prev.Kind == NetKind.Ethernet) ShowFeed(View.Network, 3.2, "ethOff", "Kabel LAN dicabut", prev.Name, false);
-                else ShowFeed(View.Network, 3.4, "wifiOff", "Wi-Fi terputus", prev.Name, false);
+                else ShowFeed(View.Network, 3.4, "wifiOff", "Wi-Fi disconnected", prev.Name, false);
                 return;
             }
             bool newLink = s.Kind != prev.Kind || s.Name != prev.Name;
@@ -116,14 +116,14 @@ namespace Gili
             string root = letter + ":\\";
             if (!arrived)
             {
-                ShowFeed(View.Device, 2.8, "usbOut", "Flashdisk dilepas", "(" + letter + ":)", false);
+                ShowFeed(View.Device, 2.8, "usbOut", "USB drive removed", "(" + letter + ":)", false);
                 return;
             }
-            string label = "", title = "Drive terpasang";
+            string label = "", title = "Drive connected";
             try
             {
                 var di = new DriveInfo(root);
-                if (di.DriveType == DriveType.Removable) title = "Flashdisk terpasang";
+                if (di.DriveType == DriveType.Removable) title = "USB drive connected";
                 if (di.IsReady) label = di.VolumeLabel;
             }
             catch (Exception ex) { Log.Write("drive info: " + ex.Message); }
@@ -145,7 +145,7 @@ namespace Gili
             if (n == monitorCount) return;
             bool more = n > monitorCount;
             monitorCount = n;
-            ShowFeed(View.Device, 3.2, more ? "monIn" : "monOut", more ? "Monitor tersambung" : "Monitor dilepas", n + " layar", false);
+            ShowFeed(View.Device, 3.2, more ? "monIn" : "monOut", more ? "Monitor connected" : "Monitor disconnected", n + " layar", false);
             if (more) SetMood(Mood.Surprised, 5);
         }
 
@@ -156,7 +156,7 @@ namespace Gili
             if (!saverKnown) { saverKnown = true; saverOn = on; return; }
             if (on == saverOn) return;
             saverOn = on;
-            ShowFeed(View.Saver, 3.2, on ? "on" : "off", on ? "Hemat baterai aktif" : "Hemat baterai nonaktif",
+            ShowFeed(View.Saver, 3.2, on ? "on" : "off", on ? "Battery saver enabled" : "Battery saver disabled",
                      on ? "Aktivitas latar dikurangi" : "", false);
         }
 
@@ -164,7 +164,7 @@ namespace Gili
         {
             if (seconds <= 0) return "";
             int minutes = seconds / 60;
-            return minutes >= 60 ? "sisa ~" + (minutes / 60) + " j " + (minutes % 60) + " m" : "sisa ~" + minutes + " menit";
+            return minutes >= 60 ? "~" + (minutes / 60) + " hr " + (minutes % 60) + " min left" : "~" + minutes + " min left";
         }
     }
 }
