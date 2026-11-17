@@ -49,11 +49,11 @@ namespace Gili
 
             AddLabel("Durasi", y); AddLabel("Ingatkan", y, 220); y += 25;
             Combo(duration, new Rectangle(18, y, 190, 28));
-            foreach (var d in Durations) duration.Items.Add(d < 60 ? d + " min" : d % 60 == 0 ? d / 60 + " hr" : (d / 60) + " jam " + (d % 60) + " min");
+            foreach (var d in Durations) duration.Items.Add(d < 60 ? d + " min" : d % 60 == 0 ? d / 60 + " hr" : (d / 60) + " hr " + (d % 60) + " min");
             duration.SelectedIndex = Math.Max(0, Array.IndexOf(Durations, meeting.DurationMin));
             if (Array.IndexOf(Durations, meeting.DurationMin) < 0) duration.SelectedIndex = 1;
             Combo(remind, new Rectangle(220, y, 182, 28));
-            foreach (var r in Reminders) remind.Items.Add(r + " menit sebelum");
+            foreach (var r in Reminders) remind.Items.Add(r + " min before");
             remind.SelectedIndex = Math.Max(0, Array.IndexOf(Reminders, meeting.RemindMin));
             if (Array.IndexOf(Reminders, meeting.RemindMin) < 0) remind.SelectedIndex = 1;
             y += 44;
@@ -79,7 +79,7 @@ namespace Gili
                 del.ForeColor = Color.FromArgb(255, 110, 100);
                 del.Click += delegate
                 {
-                    if (MessageBox.Show(this, "Hapus rapat \"" + meeting.Title + "\"" + (meeting.Repeat != "none" ? " (semua jadwal berulangnya)" : "") + "?",
+                    if (MessageBox.Show(this, "Hapus rapat \"" + meeting.Title + "\"" + (meeting.Repeat != "none" ? " (including all recurring instances)" : "") + "?",
                                         "Gili", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
                     Deleted = true;
                     DialogResult = DialogResult.OK;
