@@ -79,6 +79,11 @@ namespace Gili
             y += 38;
             SettingLabel("Theme", labelX, y, true);
             string theme = settings.Get("theme", "dark");
+            if (theme == "hitam") theme = "dark";
+            if (theme == "adaptif") theme = "adaptive";
+            if (theme == "terang") theme = "light";
+            if (theme == "aksen") theme = "windows";
+            if (theme == "kaca") theme = "glass";
             int themeIndex = Math.Max(0, Array.IndexOf(Theme.Names, theme));
             for (int i = 0; i < Theme.Names.Length; i++)
             {
