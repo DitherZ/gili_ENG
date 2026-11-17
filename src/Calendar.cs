@@ -30,7 +30,6 @@ namespace Gili
 
         static readonly Dictionary<string, int> KnownOffsets = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
         {
-            { "Asia/Jakarta", 420 }, { "Asia/Pontianak", 420 }, { "Asia/Makassar", 480 }, { "Asia/Jayapura", 540 },
             { "Asia/Singapore", 480 }, { "Asia/Kuala_Lumpur", 480 }, { "Asia/Bangkok", 420 }, { "Asia/Tokyo", 540 },
             { "UTC", 0 }, { "Etc/UTC", 0 }, { "GMT", 0 }
         };
