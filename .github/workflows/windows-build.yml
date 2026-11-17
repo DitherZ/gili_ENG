@@ -1,0 +1,23 @@
+name: Windows build
+
+on:
+  push:
+    branches:
+      - refactor/global-english-cleanup
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Build Gili
+        shell: cmd
+        run: build.cmd
