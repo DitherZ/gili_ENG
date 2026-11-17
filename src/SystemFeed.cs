@@ -145,7 +145,7 @@ namespace Gili
             if (n == monitorCount) return;
             bool more = n > monitorCount;
             monitorCount = n;
-            ShowFeed(View.Device, 3.2, more ? "monIn" : "monOut", more ? "Monitor connected" : "Monitor disconnected", n + " layar", false);
+            ShowFeed(View.Device, 3.2, more ? "monIn" : "monOut", more ? "Monitor connected" : "Monitor disconnected", n + " displays", false);
             if (more) SetMood(Mood.Surprised, 5);
         }
 
