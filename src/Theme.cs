@@ -26,7 +26,7 @@ namespace Gili
             if (name == "adaptif") name = "adaptive";
             if (name == "terang") name = "light";
             if (name == "aksen") name = "windows";
-                        if (name == "kaca") name = "glass";
+            if (name == "kaca") name = "glass";
             IsLight = name == "light";
             IsGlass = name == "glass";
             Ink = Color.FromArgb(255, 22, 22, 24);
