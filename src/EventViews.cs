@@ -63,8 +63,8 @@ namespace Gili
             }
             else DrawPlug(24, cy, Ease.OutCubic(age / 0.5f) * 5, Theme.Sub);
 
-            string title = plug ? "Mengisi daya" : full ? "Baterai penuh" : low ? "Baterai lemah" : "Memakai baterai";
-            string detail = full ? "Cabut charger untuk menjaga baterai" : low ? "Colokkan charger" : unplug ? TimeLeft(batterySecondsLeft) : "";
+            string title = plug ? "Charging" : full ? "Battery full" : low ? "Low battery" : "On battery power";
+            string detail = full ? "Unplug the charger to protect battery health" : low ? "Connect the charger" : unplug ? TimeLeft(batterySecondsLeft) : "";
             TwoLines(title, detail, low || plug || full ? c : Theme.Text, 42, w - 80, h);
 
             // battery on the right, with liquid
