@@ -162,7 +162,7 @@ namespace Gili
             foreach (var v in upHistory) max = Math.Max(max, v);
             DrawSpark(graph, upHistory, max, UpColor);
             DrawSpark(graph, downHistory, max, DownColor);
-            paint.Text("60 detik terakhir", Theme.Ui(9.5f), Theme.Faint, graph.X, graph.Bottom + 1);
+            paint.Text("Last 60 seconds", Theme.Ui(9.5f), Theme.Faint, graph.X, graph.Bottom + 1);
         }
 
         void DrawSpark(RectangleF r, Queue<float> values, float max, Color c)
