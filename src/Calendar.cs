@@ -112,7 +112,7 @@ namespace Gili
                     var m = MeetingLink.Match(Unescape(Get(r, field)));
                     if (m.Success) { template.Link = m.Value.TrimEnd('.', ',', ')'); break; }
                 }
-                if (template.Title.Length == 0) template.Title = "(Tanpa judul)";
+                if (template.Title.Length == 0) template.Title = "(Untitled)";
 
                 var excluded = new HashSet<string>();
                 for (int i = 0; i < r.ExDates.Count; i++)
