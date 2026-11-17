@@ -14,6 +14,7 @@ This fork removes Indonesian-specific and religious functionality from the upstr
 - Religious theme and prayer-specific interface states.
 - BMKG weather API integration.
 - Indonesian administrative-region lookup and BMKG `adm4` configuration.
+- Indonesian-only timezone presets from the calendar parser.
 
 ### Replaced or retained
 
@@ -21,7 +22,7 @@ This fork removes Indonesian-specific and religious functionality from the upstr
 - Weather is served by Open-Meteo using latitude and longitude.
 - The former prayer page is now a general weather page.
 - Media, lyrics, Pomodoro, meetings, notifications, clipboard, file shelf, device activity, system monitoring and visual themes remain in scope.
-- Existing Indonesian theme values are normalized by the theme layer where possible for settings-file compatibility.
+- Legacy theme values are normalized during settings-file loading; obsolete prayer, Hijri and BMKG keys are discarded.
 
 ## Validation checklist
 
@@ -33,8 +34,8 @@ This fork removes Indonesian-specific and religious functionality from the upstr
 - [x] Weather view and location flow updated.
 - [x] Prayer and Ramadan UI/state hooks removed from the main island and settings.
 - [x] English README and build output added.
-- [ ] Complete English string audit across all source files.
-- [ ] Verify no stale prayer/BMKG symbols or settings remain.
+- [x] Complete English string audit across all source files.
+- [x] Verify no stale prayer/BMKG symbols or settings remain.
 - [ ] Windows build with the repository's `build.cmd`.
 - [ ] Runtime smoke test on Windows 10/11.
 - [ ] Merge validated branch into `main`.
