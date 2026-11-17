@@ -64,7 +64,7 @@ namespace Gili
             repeat.SelectedIndex = Math.Max(0, Array.IndexOf(Meeting.RepeatKeys, meeting.Repeat));
             y += 44;
 
-            AddLabel("Link Meet / Zoom / Teams (opsional)", y); y += 25;
+            AddLabel("Meet / Zoom / Teams link (optional)", y); y += 25;
             Style(link, y); link.Text = meeting.Link ?? "";
             if (existing == null) link.Text = LinkFromClipboard();
             y += 48;
