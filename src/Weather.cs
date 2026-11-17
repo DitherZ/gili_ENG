@@ -6,8 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Web.Script.Serialization;
 
 namespace Gili
@@ -18,208 +16,116 @@ namespace Gili
         public double TempC;
         public int Humidity, Code;
         public string Desc;
-        public bool IsRain { get { return Code >= 60; } }
+        public bool IsRain
+        {
+            get { return (Code >= 51 && Code <= 67) || (Code >= 80 && Code <= 82) || Code >= 95; }
+        }
     }
 
     class WeatherReport
     {
-        public string Place = "", Adm4 = "";
+        public string Place = "";
         public List<WeatherEntry> Entries = new List<WeatherEntry>();
         public DateTime FetchedUtc;
 
-        /// <summary>The 3-hour slot covering <paramref name="localNow"/> (or the nearest one).</summary>
         public WeatherEntry Current(DateTime localNow)
         {
             WeatherEntry best = null;
             double bestDist = double.MaxValue;
-            foreach (var e in Entries)
+            foreach (var entry in Entries)
             {
-                double d = (localNow - e.Local).TotalHours;
-                double dist = d >= 0 && d < 3 ? 0 : Math.Abs(d);
-                if (dist < bestDist) { bestDist = dist; best = e; }
+                double distance = Math.Abs((localNow - entry.Local).TotalMinutes);
+                if (distance < bestDist) { bestDist = distance; best = entry; }
             }
             return best;
         }
 
-        /// <summary>First rainy slot starting within the next <paramref name="hours"/> hours.</summary>
         public WeatherEntry NextRain(DateTime localNow, double hours)
         {
-            foreach (var e in Entries)
-                if (e.IsRain && e.Local > localNow.AddHours(-1.5) && e.Local <= localNow.AddHours(hours)) return e;
+            foreach (var entry in Entries)
+                if (entry.IsRain && entry.Local > localNow.AddMinutes(-30) && entry.Local <= localNow.AddHours(hours))
+                    return entry;
             return null;
         }
     }
 
-    /// <summary>
-    /// Weather from BMKG (api.bmkg.go.id), which needs a village code (adm4). The code is found once from the
-    /// coordinates: OpenStreetMap reverse geocoding gives the names, wilayah.id maps names to official codes.
-    /// </summary>
+    /// <summary>Global weather forecasts from Open-Meteo, queried directly by latitude and longitude.</summary>
     static class WeatherService
     {
         const string UserAgent = "Gili/1.0 (Windows dynamic island)";
 
-        public static WeatherReport Fetch(string adm4)
+        public static WeatherReport Fetch(double latitude, double longitude, string place)
         {
-            var root = Json("https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=" + Uri.EscapeDataString(adm4)) as Dictionary<string, object>;
+            string url = string.Format(CultureInfo.InvariantCulture,
+                "https://api.open-meteo.com/v1/forecast?latitude={0:0.####}&longitude={1:0.####}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,precipitation_probability&forecast_days=2&timezone=auto",
+                latitude, longitude);
+            var root = Json(url) as Dictionary<string, object>;
             if (root == null) return null;
-            var report = new WeatherReport { Adm4 = adm4, FetchedUtc = DateTime.UtcNow };
-            var lokasi = root.ContainsKey("lokasi") ? root["lokasi"] as Dictionary<string, object> : null;
-            if (lokasi != null) report.Place = Str(lokasi, "desa");
-            var data = root.ContainsKey("data") ? root["data"] as object[] : null;
-            if (data == null || data.Length == 0) return null;
-            var first = data[0] as Dictionary<string, object>;
-            var days = first != null && first.ContainsKey("cuaca") ? first["cuaca"] as object[] : null;
-            if (days == null) return null;
-            foreach (var day in days)
+            var hourly = root.ContainsKey("hourly") ? root["hourly"] as Dictionary<string, object> : null;
+            if (hourly == null) return null;
+
+            var times = Array(hourly, "time");
+            var temps = Array(hourly, "temperature_2m");
+            var humidity = Array(hourly, "relative_humidity_2m");
+            var codes = Array(hourly, "weather_code");
+            int count = Math.Min(times.Length, Math.Min(temps.Length, Math.Min(humidity.Length, codes.Length)));
+            var report = new WeatherReport { Place = place ?? "", FetchedUtc = DateTime.UtcNow };
+            for (int i = 0; i < count; i++)
             {
-                var slots = day as object[];
-                if (slots == null) continue;
-                foreach (var o in slots)
-                {
-                    var s = o as Dictionary<string, object>;
-                    if (s == null) continue;
-                    DateTime local;
-                    if (!DateTime.TryParseExact(Str(s, "local_datetime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture,
-                                                DateTimeStyles.None, out local)) continue;
-                    report.Entries.Add(new WeatherEntry
-                    {
-                        Local = local,
-                        TempC = Num(s, "t"),
-                        Humidity = (int)Num(s, "hu"),
-                        Code = (int)Num(s, "weather"),
-                        Desc = Str(s, "weather_desc")
-                    });
-                }
+                DateTime local;
+                if (!DateTime.TryParse(Convert.ToString(times[i], CultureInfo.InvariantCulture),
+                    CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out local)) continue;
+                report.Entries.Add(new WeatherEntry {
+                    Local = local,
+                    TempC = Number(temps[i]),
+                    Humidity = (int)Math.Round(Number(humidity[i])),
+                    Code = (int)Math.Round(Number(codes[i])),
+                    Desc = Description((int)Math.Round(Number(codes[i])))
+                });
             }
-            report.Entries.Sort((a, b) => a.Local.CompareTo(b.Local));
             return report.Entries.Count > 0 ? report : null;
         }
 
-        /// <summary>Finds the BMKG village code nearest to the coordinates. Returns null when it cannot.</summary>
-        public static string ResolveAdm4(double lat, double lon)
+        static object[] Array(Dictionary<string, object> data, string key)
         {
-            var reverse = Json(string.Format(CultureInfo.InvariantCulture,
-                "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={0}&lon={1}&zoom=14&accept-language=id", lat, lon))
-                as Dictionary<string, object>;
-            var address = reverse != null && reverse.ContainsKey("address") ? reverse["address"] as Dictionary<string, object> : null;
-            if (address == null) return null;
-
-            string province = Pick(List("https://wilayah.id/api/provinces.json"), Str(address, "state"));
-            if (province == null) return null;
-
-            var regencies = List("https://wilayah.id/api/regencies/" + province + ".json");
-            string city = Str(address, "city"), county = First(address, "county", "regency", "state_district");
-            string regency = city.Length > 0 ? Pick(regencies, "Kota " + city) ?? Pick(regencies, city) : null;
-            if (regency == null && county.Length > 0) regency = Pick(regencies, "Kabupaten " + county) ?? Pick(regencies, county);
-            if (regency == null && city.Length > 0) regency = Pick(regencies, "Kabupaten " + city);
-            if (regency == null) return null;
-
-            var districts = List("https://wilayah.id/api/districts/" + regency + ".json");
-            if (districts.Count == 0) return null;
-            string district = Pick(districts, First(address, "city_district", "district", "municipality", "suburb", "town"));
-            if (district == null) district = districts[0].Key;
-
-            var villages = List("https://wilayah.id/api/villages/" + district + ".json");
-            if (villages.Count == 0) return null;
-            string village = Pick(villages, First(address, "village", "suburb", "quarter", "neighbourhood", "hamlet"));
-            return village ?? villages[0].Key;
+            object value;
+            return data.TryGetValue(key, out value) ? value as object[] ?? new object[0] : new object[0];
         }
 
-        static string First(Dictionary<string, object> d, params string[] keys)
+        static double Number(object value)
         {
-            foreach (var k in keys) { string v = Str(d, k); if (v.Length > 0) return v; }
-            return "";
+            try { return Convert.ToDouble(value, CultureInfo.InvariantCulture); }
+            catch { return 0; }
         }
 
-        static List<KeyValuePair<string, string>> List(string url)
+        static string Description(int code)
         {
-            var result = new List<KeyValuePair<string, string>>();
-            var root = Json(url) as Dictionary<string, object>;
-            var data = root != null && root.ContainsKey("data") ? root["data"] as object[] : null;
-            if (data == null) return result;
-            foreach (var o in data)
-            {
-                var d = o as Dictionary<string, object>;
-                if (d != null) result.Add(new KeyValuePair<string, string>(Str(d, "code"), Str(d, "name")));
-            }
-            return result;
-        }
-
-        /// <summary>Code of the entry whose name matches (exact after normalising, else containment).</summary>
-        static string Pick(List<KeyValuePair<string, string>> items, string name)
-        {
-            string n = Norm(name);
-            if (n.Length == 0) return null;
-            foreach (var kv in items) if (Norm(kv.Value) == n) return kv.Key;
-            foreach (var kv in items)
-            {
-                string v = Norm(kv.Value);
-                if (v.Length > 3 && (v.Contains(n) || n.Contains(v))) return kv.Key;
-            }
-            return null;
-        }
-
-        static string Norm(string s)
-        {
-            s = (s ?? "").ToLowerInvariant();
-            s = Regex.Replace(s, @"^(provinsi|daerah istimewa|daerah khusus ibukota|dki|kota administrasi|kabupaten administrasi|kecamatan|kelurahan|desa)\s+", "");
-            return Regex.Replace(s, "[^a-z0-9]", "");
+            if (code == 0) return "Clear";
+            if (code <= 3) return "Partly cloudy";
+            if (code == 45 || code == 48) return "Fog";
+            if (code >= 51 && code <= 55) return "Drizzle";
+            if (code >= 56 && code <= 57) return "Freezing drizzle";
+            if (code >= 61 && code <= 65) return "Rain";
+            if (code >= 66 && code <= 67) return "Freezing rain";
+            if (code >= 71 && code <= 77) return "Snow";
+            if (code >= 80 && code <= 82) return "Rain showers";
+            if (code >= 85 && code <= 86) return "Snow showers";
+            if (code >= 95) return "Thunderstorm";
+            return "Cloudy";
         }
 
         static object Json(string url)
         {
-            try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)(3072 | 12288); } catch { } // TLS 1.2 + 1.3 (BMKG accepts only 1.3)
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.Timeout = 12000;
-            req.ReadWriteTimeout = 12000;
-            req.UserAgent = UserAgent;
-            req.AllowAutoRedirect = true;
-            using (var resp = req.GetResponse())
-            using (var sr = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
-                return new JavaScriptSerializer { MaxJsonLength = 16 * 1024 * 1024 }.DeserializeObject(sr.ReadToEnd());
-        }
-
-        static string Str(Dictionary<string, object> d, string key)
-        {
-            object v;
-            return d.TryGetValue(key, out v) && v != null ? Convert.ToString(v, CultureInfo.InvariantCulture) : "";
-        }
-
-        static double Num(Dictionary<string, object> d, string key)
-        {
-            object v;
-            if (!d.TryGetValue(key, out v) || v == null) return 0;
-            try { return Convert.ToDouble(v, CultureInfo.InvariantCulture); } catch { return 0; }
-        }
-    }
-
-    static class Hijri
-    {
-        static readonly string[] Months = { "Muharram", "Safar", "Rabiulawal", "Rabiulakhir", "Jumadilawal", "Jumadilakhir",
-                                            "Rajab", "Syakban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah" };
-        static readonly UmAlQuraCalendar Calendar = new UmAlQuraCalendar();
-
-        /// <summary>Hijri date; <paramref name="adjust"/> shifts by whole days to follow the Kemenag (isbat) decision.</summary>
-        public static void Of(DateTime date, int adjust, out int day, out int month, out int year)
-        {
-            var d = date.Date.AddDays(adjust);
-            day = Calendar.GetDayOfMonth(d);
-            month = Calendar.GetMonth(d);
-            year = Calendar.GetYear(d);
-        }
-
-        public static string Format(DateTime date, int adjust)
-        {
-            int d, m, y;
-            Of(date, adjust, out d, out m, out y);
-            return d + " " + Months[m - 1] + " " + y + " H";
-        }
-
-        public static bool IsRamadan(DateTime date, int adjust, out int day)
-        {
-            int m, y;
-            Of(date, adjust, out day, out m, out y);
-            return m == 9;
+            try { ServicePointManager.SecurityProtocol |= (SecurityProtocolType)(3072 | 12288); }
+            catch { }
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.Timeout = 12000;
+            request.ReadWriteTimeout = 12000;
+            request.UserAgent = UserAgent;
+            request.AllowAutoRedirect = true;
+            using (var response = request.GetResponse())
+            using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                return new JavaScriptSerializer { MaxJsonLength = 16 * 1024 * 1024 }.DeserializeObject(reader.ReadToEnd());
         }
     }
 
@@ -228,13 +134,13 @@ namespace Gili
         static readonly Color SunColor = Color.FromArgb(255, 255, 196, 61);
         static readonly Color RainColor = Color.FromArgb(255, 96, 176, 255);
 
-        /// <summary>Small vector weather icon for a BMKG weather code, centred on (cx, cy).</summary>
+        /// <summary>Small vector weather icon for a WMO weather code, centred on (cx, cy).</summary>
         public static void Draw(Painter p, int code, float cx, float cy, float size, bool night)
         {
             float s = size / 20f;
             bool partly = code == 1 || code == 2;
-            bool cloudy = code == 3 || code == 4 || code >= 60;
-            bool rain = code >= 60 && code < 95, storm = code >= 95, fog = code == 5 || code == 10 || code == 45;
+            bool cloudy = code == 3 || code == 45 || code == 48 || code >= 51;
+            bool rain = (code >= 51 && code <= 67) || (code >= 80 && code <= 82), storm = code >= 95, fog = code == 45 || code == 48;
 
             if (fog)
             {
